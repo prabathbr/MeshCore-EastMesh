@@ -8,6 +8,8 @@ It does not try to repeat the full upstream MeshCore CLI surface.
 
 These commands are available on `*_repeater_mqtt` firmware targets.
 
+No-argument `get` commands must be entered exactly as shown.
+
 ### MQTT Status And Routing
 
 - `get mqtt.status`: shows WiFi, NTP, IATA, endpoint status, status publishing state, and TX state.
@@ -50,6 +52,8 @@ Notes:
 - new repeater MQTT installs default `mqtt.iata` to `UNSET`
 - `letsmesh-eu` and `letsmesh-us` remain off by default unless already configured in saved prefs
 - if `mqtt.iata` is `UNSET`, `eastmesh-au`, `letsmesh-eu`, and `letsmesh-us` will not connect even if they are toggled on
+- turning off a connected broker publishes a retained MQTT status update with `"status":"offline"` before the client disconnects
+- changing `mqtt.iata` away from a configured value also publishes retained offline status to the old status topic, restarts connected broker clients, and reconnects under the new topic path
 
 Legacy dotted aliases are also accepted:
 

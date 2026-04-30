@@ -2233,11 +2233,11 @@ void MyMesh::handleCommand(uint32_t sender_timestamp, char *command, char *reply
     }
 #endif
 #if defined(ESP_PLATFORM)
-  } else if (memcmp(command, "get wifi.status", 15) == 0) {
+  } else if (strcmp(command, "get wifi.status") == 0) {
     network.formatWifiStatusReply(reply, 160);
-  } else if (memcmp(command, "get wifi.ssid", 13) == 0) {
+  } else if (strcmp(command, "get wifi.ssid") == 0) {
     sprintf(reply, "> %s", network.getWifiSSID()[0] ? network.getWifiSSID() : "-");
-  } else if (memcmp(command, "get wifi.powersaving", 20) == 0) {
+  } else if (strcmp(command, "get wifi.powersaving") == 0) {
     sprintf(reply, "> %s", network.getWifiPowerSave());
 #endif
 #if defined(ESP_PLATFORM) && WITH_WEB_PANEL
@@ -2308,23 +2308,23 @@ void MyMesh::handleCommand(uint32_t sender_timestamp, char *command, char *reply
     mqtt.formatStatusReply(reply, 160);
   } else if (strcmp(command, "get mqtt.client_version") == 0) {
     sprintf(reply, "> %s", mqtt.getClientVersion());
-  } else if (memcmp(command, "get mqtt.iata", 13) == 0) {
+  } else if (strcmp(command, "get mqtt.iata") == 0) {
     sprintf(reply, "> %s", mqtt.getIata());
-  } else if (memcmp(command, "get mqtt.owner", 14) == 0) {
+  } else if (strcmp(command, "get mqtt.owner") == 0) {
     sprintf(reply, "> %s", mqtt.getOwnerPublicKey()[0] ? mqtt.getOwnerPublicKey() : "-");
-  } else if (memcmp(command, "get mqtt.email", 14) == 0) {
+  } else if (strcmp(command, "get mqtt.email") == 0) {
     sprintf(reply, "> %s", mqtt.getOwnerEmail()[0] ? mqtt.getOwnerEmail() : "-");
-  } else if (memcmp(command, "get mqtt.packets", 16) == 0) {
+  } else if (strcmp(command, "get mqtt.packets") == 0) {
     sprintf(reply, "> %s", mqtt.isPacketsEnabled() ? "on" : "off");
-  } else if (memcmp(command, "get mqtt.raw", 12) == 0) {
+  } else if (strcmp(command, "get mqtt.raw") == 0) {
     sprintf(reply, "> %s", mqtt.isRawEnabled() ? "on" : "off");
-  } else if (memcmp(command, "get mqtt.tx", 11) == 0) {
+  } else if (strcmp(command, "get mqtt.tx") == 0) {
     sprintf(reply, "> %s", mqtt.isTxEnabled() ? "on" : "off");
-  } else if (memcmp(command, "get mqtt.eastmesh-au", 20) == 0 || memcmp(command, "get mqtt.eastmesh.au", 20) == 0) {
+  } else if (strcmp(command, "get mqtt.eastmesh-au") == 0 || strcmp(command, "get mqtt.eastmesh.au") == 0) {
     sprintf(reply, "> %s", mqtt.isEndpointEnabled(0x01) ? "on" : "off");
-  } else if (memcmp(command, "get mqtt.letsmesh-eu", 21) == 0 || memcmp(command, "get mqtt.letsmesh.eu", 21) == 0) {
+  } else if (strcmp(command, "get mqtt.letsmesh-eu") == 0 || strcmp(command, "get mqtt.letsmesh.eu") == 0) {
     sprintf(reply, "> %s", mqtt.isEndpointEnabled(0x02) ? "on" : "off");
-  } else if (memcmp(command, "get mqtt.letsmesh-us", 21) == 0 || memcmp(command, "get mqtt.letsmesh.us", 21) == 0) {
+  } else if (strcmp(command, "get mqtt.letsmesh-us") == 0 || strcmp(command, "get mqtt.letsmesh.us") == 0) {
     sprintf(reply, "> %s", mqtt.isEndpointEnabled(0x04) ? "on" : "off");
   } else if (memcmp(command, "set mqtt.tx ", 12) == 0) {
     mqtt.setTxEnabled(memcmp(&command[12], "on", 2) == 0);

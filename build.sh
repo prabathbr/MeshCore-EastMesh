@@ -146,6 +146,21 @@ disable_debug_flags() {
   fi
 }
 
+get_firmware_build_date() {
+  local env_name="$1"
+  local header="examples/simple_repeater/MyMesh.h"
+
+  if [[ "$env_name" == *companion_radio* ]]; then
+    header="examples/companion_radio/MyMesh.h"
+  elif [[ "$env_name" == *room_server* ]]; then
+    header="examples/simple_room_server/MyMesh.h"
+  elif [[ "$env_name" == *sensor* ]]; then
+    header="examples/simple_sensor/SensorMesh.h"
+  fi
+
+  sed -n 's/^[[:space:]]*#define[[:space:]][[:space:]]*FIRMWARE_BUILD_DATE[[:space:]][[:space:]]*"\([^"]*\)".*/\1/p' "$header" | head -n 1
+}
+
 # build firmware for the provided pio env in $1
 build_firmware() {
   # get env platform for post build actions
@@ -154,8 +169,12 @@ build_firmware() {
   # get git commit sha
   COMMIT_HASH=$(git rev-parse --short HEAD)
 
-  # set firmware build date
-  FIRMWARE_BUILD_DATE=$(date '+%d-%b-%Y')
+  # use the same fallback build date as direct PlatformIO builds
+  FIRMWARE_BUILD_DATE=$(get_firmware_build_date "$1")
+  if [ -z "$FIRMWARE_BUILD_DATE" ]; then
+    echo "FIRMWARE_BUILD_DATE could not be read for $1"
+    exit 1
+  fi
 
   # get FIRMWARE_VERSION, which should be provided by the environment
   if [ -z "$FIRMWARE_VERSION" ]; then
