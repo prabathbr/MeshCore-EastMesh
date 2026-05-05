@@ -35,6 +35,7 @@ Commands:
   build-companion-wifi-firmwares: Build all companion WiFi firmwares for all build targets.
   build-repeater-firmwares: Build all repeater firmwares for all build targets.
   build-repeater-mqtt-firmwares: Build all repeater MQTT firmwares for all build targets.
+  build-repeater-mqtt-bridge-firmwares: Build all repeater MQTT bridge firmwares for all build targets.
   build-room-server-firmwares: Build all chat room server firmwares for all build targets.
 
 Examples:
@@ -55,6 +56,9 @@ $ sh eastmesh-build.sh build-repeater-firmwares
 
 Build all repeater MQTT firmwares
 $ sh eastmesh-build.sh build-repeater-mqtt-firmwares
+
+Build all repeater MQTT bridge firmwares
+$ sh eastmesh-build.sh build-repeater-mqtt-bridge-firmwares
 
 Build all chat room server firmwares
 $ sh eastmesh-build.sh build-room-server-firmwares
@@ -77,7 +81,14 @@ EOF
 
 # get a list of pio env names that start with "env:"
 get_pio_envs() {
-  run_pio project config | grep 'env:' | sed 's/env://'
+  run_pio project config --json-output | run_python -c "
+import json
+import sys
+
+for section, _options in json.load(sys.stdin):
+    if section.startswith('env:'):
+        print(section[4:])
+"
 }
 
 # Catch cries for help before doing anything else.
@@ -87,6 +98,8 @@ case $1 in
     exit 1
     ;;
   list|-l)
+    require_uv
+    sync_python_tooling
     get_pio_envs
     exit 0
     ;;
@@ -298,6 +311,12 @@ build_repeater_mqtt_firmwares() {
 
 }
 
+build_repeater_mqtt_bridge_firmwares() {
+
+  build_all_firmwares_by_suffix "_repeater_mqtt_bridge"
+
+}
+
 build_room_server_firmwares() {
 
 #  # build specific room server firmwares
@@ -347,6 +366,8 @@ elif [[ $1 == "build-repeater-firmwares" ]]; then
   build_repeater_firmwares
 elif [[ $1 == "build-repeater-mqtt-firmwares" ]]; then
   build_repeater_mqtt_firmwares
+elif [[ $1 == "build-repeater-mqtt-bridge-firmwares" ]]; then
+  build_repeater_mqtt_bridge_firmwares
 elif [[ $1 == "build-room-server-firmwares" ]]; then
   build_room_server_firmwares
 fi

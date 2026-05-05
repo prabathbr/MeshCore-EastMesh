@@ -180,9 +180,9 @@ void NetworkService::formatWifiStatusReply(char* reply, size_t reply_size) const
   if (wifi_status == WL_CONNECTED) {
     const int rssi_dbm = WiFi.RSSI();
     snprintf(reply, reply_size,
-             "> ssid:%s status:%s code:%d state:%s ip:%s rssi:%d quality:%d%% signal:%s",
+             "> ssid:%s status:%s code:%d state:%s ip:%s channel:%d rssi:%d quality:%d%% signal:%s",
              _prefs.wifi_ssid, status, static_cast<int>(wifi_status), state, WiFi.localIP().toString().c_str(),
-             rssi_dbm, getWifiQualityPercent(rssi_dbm), getWifiQualityLabel(rssi_dbm));
+             WiFi.channel(), rssi_dbm, getWifiQualityPercent(rssi_dbm), getWifiQualityLabel(rssi_dbm));
   } else {
     snprintf(reply, reply_size, "> ssid:%s status:%s code:%d state:%s", _prefs.wifi_ssid[0] ? _prefs.wifi_ssid : "-",
              status, static_cast<int>(wifi_status), state);

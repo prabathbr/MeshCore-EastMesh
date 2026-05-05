@@ -59,7 +59,7 @@ Some constrained targets disable the web panel to stay within flash limits. If y
 
 Useful CLI commands:
 
-- `get wifi.status`: shows WiFi state and IP address when connected.
+- `get wifi.status`: shows WiFi state, IP address, channel, and signal when connected.
 - `get web.status`: shows whether the web panel is up and which URL to use.
 
 Example:
