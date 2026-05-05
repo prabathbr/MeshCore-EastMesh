@@ -1,0 +1,43 @@
+name: EastMesh Build Repeater MQTT Firmwares
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'repeater-mqtt-eastmesh-*'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    env:
+      OFFICIAL_MESHCORE_VERSION: ${{ vars.OFFICIAL_MESHCORE_VERSION }}
+      PLATFORMIO_BUILD_FLAGS: -UMQTT_DEBUG
+    steps:
+
+      - name: Clone Repo
+        uses: actions/checkout@v6
+
+      - name: Setup Build Environment
+        uses: ./.github/actions/setup-build-environment
+
+      - name: Build Firmwares
+        run: /usr/bin/env bash build.sh build-repeater-mqtt-firmwares
+
+      - name: Upload Workflow Artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: repeater-mqtt-firmwares
+          path: out
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: Repeater MQTT Firmware ${{ env.RELEASE_VERSION }}
+          body: ""
+          draft: true
+          files: out/*

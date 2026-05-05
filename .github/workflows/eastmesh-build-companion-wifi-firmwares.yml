@@ -1,4 +1,4 @@
-name: Build Companion WiFi Firmwares
+name: EastMesh Build Companion WiFi Firmwares
 
 permissions:
   contents: write

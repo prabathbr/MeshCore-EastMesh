@@ -13,30 +13,24 @@ jobs:
   github-pages:
     runs-on: ubuntu-latest
     steps:
+
       - name: Checkout Repo
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v6.2.0
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v8.0.0
-
-      - name: Sync Docs Tooling
-        run: uv sync --locked --group docs
+          ruby-version: 3.x
 
       - name: Build
-        run: uv run --group docs zensical build
-
-      - name: Write CNAME
-        if: ${{ vars.PAGES_CNAME != '' }}
-        run: printf '%s\n' "${{ vars.PAGES_CNAME }}" > site/CNAME
+        run: |
+          pip install mkdocs-material
+          mkdocs build
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4.0.0
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          cname: docs.meshcore.io
           publish_dir: ./site
-          publish_branch: "gh-pages"
+          publish_branch: 'gh-pages'

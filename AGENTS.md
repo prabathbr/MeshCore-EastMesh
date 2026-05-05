@@ -32,14 +32,14 @@ Only modify code for clearly scoped EastMesh features:
 
 | Change                | File                 |
 | --------------------- | -------------------- |
-| CLI                   | `docs/custom-cli.md` |
-| Web panel UI/behavior | `docs/web-panel.md`  |
+| CLI                   | `eastmesh-docs/custom-cli.md` |
+| Web panel UI/behavior | `eastmesh-docs/web-panel.md`  |
 | Releases              | `release-notes.yml`  |
-| Flashing guidance     | `docs/releases.md`   |
+| Flashing guidance     | `eastmesh-docs/releases.md`   |
 
 ### Web Panel Gate
 
-If editing `examples/simple_repeater/MyMesh.cpp`, also update `docs/custom-cli.md`.
+If editing `examples/simple_repeater/MyMesh.cpp`, also update `eastmesh-docs/custom-cli.md`.
 
 ## Tooling
 
@@ -116,24 +116,30 @@ uv run pio run -e T_Beam_S3_Supreme_SX1262_repeater_mqtt -t upload --upload-port
 - `variants/eastmesh_mqtt/platformio.ini`
 - `examples/simple_repeater/MyMesh.cpp`
 - `src/helpers/mqtt/MQTTUplink.cpp`
-- `docs/*.md`
+- `eastmesh-docs/*.md`
 - `RELEASE.md`
 - `release-notes.yml`
+
+## Workflow Ownership
+
+EastMesh workflows use the `eastmesh-*.yml` prefix in `.github/workflows/`.
+
+Upstream MeshCore workflows may remain under their original filenames for merge hygiene. Do not adapt them for EastMesh behavior; keep them close to upstream and disable them in GitHub Actions for this repository.
 
 ## Docs Sync Requirements
 
 If you change any of the following, update docs in the same PR when practical:
 
 - Web-panel commands:
-  - update `docs/custom-cli.md`
+  - update `eastmesh-docs/custom-cli.md`
 - Web-panel user-facing behavior, sections, controls, or troubleshooting:
-  - update `docs/web-panel.md`
+  - update `eastmesh-docs/web-panel.md`
 - EastMesh CLI additions or changed semantics:
-  - update `docs/custom-cli.md`
+  - update `eastmesh-docs/custom-cli.md`
 - Release/tag preparation:
   - update `release-notes.yml`
 - Flashing/release asset guidance:
-  - update `docs/releases.md`
+  - update `eastmesh-docs/releases.md`
 
 ## Repeater MQTT Notes
 
