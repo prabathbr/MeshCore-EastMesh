@@ -4,6 +4,8 @@ This repo uses `uv` for Python tooling and runs PlatformIO through `uv run`.
 
 This page is for building from source. If you just want firmware to flash, start with [Download and Flash Releases](./releases.md) instead.
 
+Use this page when you are changing firmware, testing a target before release, or building a local artifact that is not available from GitHub Releases.
+
 ## Setup
 
 From the repo root:
@@ -25,6 +27,8 @@ Plain PlatformIO build for a single target:
 ```bash
 uv run pio run -e heltec_v4_repeater_mqtt
 uv run pio run -e heltec_v4_companion_radio_wifi
+uv run pio run -e heltec_v4_repeater_bridge_espnow
+uv run pio run -e heltec_v4_repeater_mqtt_bridge
 ```
 
 Flash a target:
@@ -43,7 +47,7 @@ uv run pio device monitor --port /dev/tty.usbmodemXXXX --baud 115200
 
 If you want the same version metadata used by the release workflows, export the version variables first.
 
-Companion WiFi:
+Companion Wi-Fi:
 
 ```bash
 export FIRMWARE_VERSION=v1.14.1
@@ -58,7 +62,27 @@ export EASTMESH_VERSION=v1.0.1
 bash eastmesh-build.sh build-firmware heltec_v4_repeater_mqtt
 ```
 
+Repeater ESP-NOW bridge:
+
+```bash
+export FIRMWARE_VERSION=v1.15.0
+bash eastmesh-build.sh build-firmware heltec_v4_repeater_bridge_espnow
+```
+
+Repeater MQTT bridge:
+
+```bash
+export FIRMWARE_VERSION=v1.15.0
+export EASTMESH_VERSION=v1.4.0
+bash eastmesh-build.sh build-firmware heltec_v4_repeater_mqtt_bridge
+```
+
 This produces versioned artifacts in `out/`.
+
+Versioning rule:
+
+- `companion-wifi` and `repeater-bridge-espnow` use the upstream MeshCore version as `FIRMWARE_VERSION`
+- `repeater-mqtt` and `repeater-mqtt-bridge` use the upstream MeshCore version as `FIRMWARE_VERSION` plus the EastMesh release version as `EASTMESH_VERSION`
 
 ## Supported `repeater_mqtt` Boards
 
@@ -99,6 +123,28 @@ Xiao_C6_repeater_mqtt
 Xiao_S3_WIO_repeater_mqtt
 ```
 
+## Supported Bridge Boards
+
+Bridge targets can be listed from the repo root:
+
+```bash
+bash eastmesh-build.sh list | grep '_repeater_bridge_espnow'
+bash eastmesh-build.sh list | grep '_repeater_mqtt_bridge'
+```
+
+Common examples:
+
+```text
+heltec_v4_repeater_bridge_espnow
+heltec_v4_repeater_mqtt_bridge
+Station_G2_repeater_bridge_espnow
+Station_G2_repeater_mqtt_bridge
+T_Beam_S3_Supreme_SX1262_repeater_bridge_espnow
+T_Beam_S3_Supreme_SX1262_repeater_mqtt_bridge
+```
+
+Bridge firmware is for local ESP-NOW bridge use between nearby repeaters. It is not MQTT-over-WAN or VPN bridging.
+
 ## Supported `companion_radio_wifi` Boards
 
 These are the full PlatformIO env names used for local source builds and release artifact naming.
@@ -121,15 +167,15 @@ ThinkNode_M5_companion_radio_wifi
 Xiao_S3_WIO_companion_radio_wifi
 ```
 
-## Companion WiFi CLI
+## Companion Wi-Fi CLI
 
-Current companion WiFi builds support persisted WiFi rescue commands:
+Current companion Wi-Fi builds support persisted Wi-Fi rescue commands:
 
 - open a serial monitor at `115200` baud
 - reboot the device
 - long-press the user button within the first 8 seconds after boot to enter `CLI Rescue`
 - wait for `========= CLI Rescue =========`
-- then run the WiFi rescue commands below from the serial monitor
+- then run the Wi-Fi rescue commands below from the serial monitor
 
 ```text
 get wifi.status

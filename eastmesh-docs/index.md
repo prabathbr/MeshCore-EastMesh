@@ -13,11 +13,24 @@ MeshCore-EastMesh keeps the upstream MeshCore firmware intact and publishes four
 
     They are not MQTT-over-WAN, VPN, or internet bridge releases. MQTT is still the uplink/visibility path for MQTT firmware; it is not used to tunnel mesh traffic between distant sites.
 
-If you are just trying to pick a board or download firmware, start with:
+If you want guidance first, start with:
 
 - [Compare Boards](./boards.md)
 - [Download and Flash Releases](./releases.md)
-- [Flash NOW!](https://flasher.eastmesh.au)
+
+If you already know your board and just want the quickest path, skip the docs and open the flasher:
+
+- [Open the EastMesh Flasher](https://flasher.eastmesh.au)
+
+## I Want To
+
+- choose a board: start with [Compare Boards](./boards.md)
+- flash firmware with guidance: start with [Download and Flash Releases](./releases.md)
+- flash firmware now: open the [EastMesh Flasher](https://flasher.eastmesh.au)
+- set up a repeater after flashing: use [Download and Flash Releases](./releases.md) and [Use the Repeater Web Panel](./web-panel.md)
+- understand EastMesh CLI commands: use [Custom CLI Commands](./custom-cli.md)
+- automate or script against a repeater: use [Use the Repeater Web API](./api.md)
+- build firmware locally: use [Build Locally With uv](./local-builds.md)
 
 ## End User Guides
 
@@ -36,7 +49,7 @@ If you are just trying to pick a board or download firmware, start with:
 
 This docs site only covers the EastMesh-specific pieces in this repository.
 
-For general MeshCore behavior, radio operation, and upstream firmware concepts, refer to the upstream project:
+For general MeshCore behaviour, radio operation, and upstream firmware concepts, refer to the upstream project:
 
 - [meshcore-dev/MeshCore](https://github.com/meshcore-dev/MeshCore)
 

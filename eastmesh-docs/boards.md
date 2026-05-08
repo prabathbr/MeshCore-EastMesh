@@ -2,12 +2,41 @@
 
 This page is meant to help you choose a board, not just list every technical detail.
 
-If you only want a quick answer:
+## Start Here
 
-- for a roof-mounted or set-and-forget MQTT repeater, start with `heltec_v4`, `heltec_v4_tft`, `Station_G2`, or `T_Beam_S3_Supreme_SX1262`
-- for an app-first Wi-Fi companion, headless boards are fine and often simpler
-- if you want an onboard screen people will actually use, prefer TFT boards
+If you are new to MeshCore hardware and just want a sensible starting point, first decide whether the device is a companion or a repeater.
+
+For companions, think Wi-Fi-connected automation endpoint:
+
+- use companion Wi-Fi builds when another system, such as Home Assistant, RemoteTerm, or your own tooling, needs to connect to MeshCore over Wi-Fi
+- these are usually not hands-on daily devices, so a screen is optional rather than a must-have
+- headless or simple boards are often fine when the companion will sit near power and be managed from another app or automation system
+- check the companion tables below when you do want a display, GPS, or a more complete board package
+
+For MQTT/web repeaters, think Wi-Fi, broker visibility, and enough headroom for the local web panel:
+
+- common starting points are `Heltec_v3` and `heltec_v4`
+- `heltec_v4_repeater_mqtt` is a strong all-round MQTT repeater choice with GPS, PSRAM, and 16 MB flash
+- choose boards with more flash and PSRAM when you want MQTT plus the local web panel, stats, or more room for future features
+- screens are not a major requirement because MQTT repeaters have the local web panel for setup and troubleshooting
+- headless repeaters are often the cleanest choice when the device will live in a roof, box, or fixed install and you will configure it from the web panel, serial console, or app
+
+For bridge repeaters, think local radio linking between nearby repeaters:
+
+- use bridge firmware when two local repeaters need to exchange traffic across different MeshCore radio configs, such as `Australia (Narrow)` and `Australia (Mid)`
+- pure ESP-NOW bridge repeaters do not need MQTT, the EastMesh web panel, or a screen
+- prioritise stable power, suitable antennas, and placement over display features
+- use `repeater-mqtt-bridge` only when the same repeater also needs MQTT uplink; otherwise `repeater-bridge-espnow` keeps the role simpler
+
+Other notes:
+
+- screens matter more for companions or bench/field devices than fixed repeaters
+- if you do want an onboard screen people will actually use, prefer TFT boards
 - if you want a low-power status screen, prefer e-paper boards
+- if location-aware or mobile use matters, prefer GPS-capable boards such as the T-Beam family, `heltec_tracker_v2`, `Heltec_v3`, `heltec_v4`, or `ThinkNode_M5`
+- if you want the most conservative, older radio family choices, the `SX1276` boards are `LilyGo_TLora_V2_1_1_6`, `Tbeam_SX1276`, and `Heltec_v2`
+
+## About The Tables
 
 The tables below are built from the repo's PlatformIO board metadata and variant build flags.
 
@@ -18,15 +47,13 @@ The tables below are built from the repo's PlatformIO board metadata and variant
 - `GPS` uses `✅` when present and is blank when absent.
 - `SD` uses `✅` when the board is currently known to support the SD-backed archive path in EastMesh, `🧪` when the hardware likely supports TF/microSD but the board-specific integration still needs validation, and is blank when there is no current SD/archive support note.
 
-## Start Here
+## Track Notes
 
-- Pick an `ESP32-S3` board with `16MB` flash and PSRAM if you want strong overall headroom for MQTT plus UI: `heltec_v4_tft`, `heltec_v4`, `Station_G2`, `LilyGo_TBeam_1W`.
-- Pick a TFT board if this will be used as a human-facing companion or field node: `heltec_v4_tft`, `heltec_tracker_v2`, `LilyGo_TDeck`, `Heltec_T190`.
-- Pick e-paper if you want a status screen with lower idle draw and less frequent refresh: `Heltec_E213`, `Heltec_E290`, `Heltec_Wireless_Paper`, `ThinkNode_M5`.
-- Pick a headless board if this is mainly a fixed MQTT gateway and screen space is not useful: `RAK_3112`, `Generic_E22`, `Meshimi`, `Xiao_C6`.
-- Pick a headless Wi-Fi companion if the phone app will be the primary UI anyway: `RAK_3112_companion_radio_wifi`, `Xiao_S3_WIO_companion_radio_wifi`, `Station_G2_companion_radio_wifi`.
-- Pick a GPS-capable board if location-aware/mobile use matters: the T-Beam family, `heltec_tracker_v2`, `Heltec_v3`, `heltec_v4`, `Station_G2`, `ThinkNode_M5`.
-- If you want the most conservative, older radio family choices, the `SX1276` boards are `LilyGo_TLora_V2_1_1_6`, `Tbeam_SX1276`, and `Heltec_v2`.
+- `companion-wifi` boards are for app-connected companion devices.
+- `repeater-mqtt` boards are for Wi-Fi repeaters that publish to MQTT.
+- `repeater-bridge-espnow` and `repeater-mqtt-bridge` boards are for local ESP-NOW bridge use between nearby repeaters on different MeshCore radio configs.
+
+Bridge firmware is not MQTT-over-WAN or VPN bridging. Use it when two local repeaters need to exchange traffic across radio configs such as `Australia (Narrow)` and `Australia (Mid)`.
 
 ## Additional Signals
 

@@ -14,11 +14,19 @@ Start by downloading the correct EastMesh release for your board from:
 
 - [Download and Flash Releases](./releases.md)
 
+## Quick Answer
+
+Try a normal firmware flash first, without erasing the device. After flashing, re-enter the current EastMesh Wi-Fi and MQTT settings listed below.
+
+Only do a full erase-flash if the repeater still behaves strangely after reflashing, reapplying settings, and rebooting.
+
 ## Before You Start
 
 - you can flash the new firmware without erasing first
 - after flashing, you will need to reapply your Wi-Fi and some MQTT settings
 - you can do this either from the serial CLI or from the companion app
+
+Older MQTT bridge settings from `xJARiD/MeshCore` do not migrate into the current EastMesh MQTT uplink settings. Re-enter the settings you still use now instead of expecting older broker/analyzer values to carry forward.
 
 ## Required Setup After Flashing
 

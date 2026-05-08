@@ -4,9 +4,23 @@ This page is for end users running an EastMesh `*_repeater_mqtt` build with the 
 
 It covers how to reach the panel, what each section does, and what to expect when using it on desktop or mobile.
 
+## Start Here
+
+For normal first-time use:
+
+1. Connect the repeater to Wi-Fi.
+2. Run `get wifi.status` to find its IP address.
+3. Open `https://<repeater-ip>/` in a browser.
+4. Accept the self-signed certificate warning.
+5. Log in with the repeater admin password.
+6. Use the panel for setup or troubleshooting.
+7. When finished, use `set web off` if the repeater needs maximum MQTT headroom.
+
+Most users only need the panel for first setup, occasional setting changes, and troubleshooting. Leave it enabled only when browser access is worth the extra memory use.
+
 ## What It Is
 
-The repeater web panel is a local HTTPS configuration page served directly by the repeater over WiFi.
+The repeater web panel is a local HTTPS configuration page served directly by the repeater over Wi-Fi.
 
 It gives you:
 
@@ -23,6 +37,28 @@ Operational guidance:
 - use it for initial setup, occasional configuration changes, and troubleshooting
 - when you are finished, prefer `set web off` on MQTT repeaters that need maximum headroom
 - this leaves more internal heap available for MQTT/WSS activity, especially on dual-broker setups
+
+## Common Tasks
+
+### Check Wi-Fi And MQTT
+
+1. Open the panel.
+2. Press `wifi.status` in Quick `get` Commands.
+3. Press `mqtt.status` in Quick `get` Commands.
+4. Open `/stats` from the top navigation for the historical stats view.
+
+### Change Device Name
+
+1. Edit `Device Name`.
+2. Press `Save`.
+3. Confirm the generated command and reply in the CLI terminal box.
+
+### Update MQTT Owner Or Email
+
+1. Go to `MQTT Settings`.
+2. Enter the new value.
+3. Press `Save`.
+4. Use the refresh button if you want to re-read the stored value from the repeater.
 
 ## Screenshot Overview
 
@@ -43,7 +79,7 @@ The screenshots below show the current split between the lighter `/app` admin pa
 You need:
 
 - a supported `*_repeater_mqtt` firmware build
-- WiFi configured on the repeater
+- Wi-Fi configured on the repeater
 - the repeater connected to your local network
 - the repeater admin password
 
@@ -51,7 +87,7 @@ Some constrained targets disable the web panel to stay within flash limits. If y
 
 ## How To Open It
 
-1. Connect the repeater to WiFi.
+1. Connect the repeater to Wi-Fi.
 2. Find its IP address.
 3. Open `https://<repeater-ip>/` in a browser.
 4. Accept the browser warning for the self-signed certificate.
@@ -59,7 +95,7 @@ Some constrained targets disable the web panel to stay within flash limits. If y
 
 Useful CLI commands:
 
-- `get wifi.status`: shows WiFi state, IP address, channel, and signal when connected.
+- `get wifi.status`: shows Wi-Fi state, IP address, channel, and signal when connected.
 - `get web.status`: shows whether the web panel is up and which URL to use.
 
 Example:
@@ -294,29 +330,9 @@ On mobile:
 - quick command buttons collapse into a two-column layout
 - top navigation and action groups stay compact and touch-friendly
 - input rows stay usable for touch interaction
-- trend cards reorganize into single-column sections where needed
+- trend cards reorganise into single-column sections where needed
 
-## Common Tasks
-
-### Check WiFi And MQTT
-
-1. Open the panel.
-2. Press `wifi.status` in Quick `get` Commands.
-3. Press `mqtt.status` in Quick `get` Commands.
-4. Open `/stats` from the top navigation for the historical stats view.
-
-### Change Device Name
-
-1. Edit `Device Name`.
-2. Press `Save`.
-3. Confirm the generated command and reply in the CLI terminal box.
-
-### Update MQTT Owner Or Email
-
-1. Go to `MQTT Settings`.
-2. Enter the new value.
-3. Press `Save`.
-4. Use the refresh button if you want to re-read the stored value from the repeater.
+## Advanced Tasks
 
 ### Start OTA
 
@@ -345,7 +361,7 @@ That is expected. The panel uses a self-signed certificate generated for local u
 
 Check:
 
-- the repeater is on WiFi
+- the repeater is on Wi-Fi
 - the IP address from `get wifi.status`
 - `get web.status` reports the panel as up
 - your board/firmware target supports the web panel
@@ -377,7 +393,7 @@ Try:
 - refreshing the browser tab
 - using `Refresh` on `/stats`
 - logging out and back in
-- checking WiFi stability with `get wifi.status`
+- checking Wi-Fi stability with `get wifi.status`
 
 ### `/stats` is unavailable
 

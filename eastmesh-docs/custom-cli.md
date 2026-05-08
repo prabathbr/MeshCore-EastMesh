@@ -4,6 +4,28 @@ This page covers the EastMesh-specific CLI commands added in this repository.
 
 It does not try to repeat the full upstream MeshCore CLI surface.
 
+## Start Here
+
+If you are doing first-time setup, these are the commands most users need before anything else:
+
+```text
+set wifi.ssid <your-ssid>
+set wifi.pwd <your-password>
+get wifi.status
+set mqtt.iata <code>
+get mqtt.status
+```
+
+For MQTT repeaters with the local web panel, these are also useful:
+
+```text
+set web on
+get web.status
+set web off
+```
+
+Use `set web on` while setting up or troubleshooting, then use `set web off` when a fixed MQTT repeater needs maximum memory headroom.
+
 ## Repeater MQTT Commands
 
 These commands are available on `*_repeater_mqtt` firmware targets.
@@ -12,7 +34,7 @@ No-argument `get` commands must be entered exactly as shown.
 
 ### MQTT Status And Routing
 
-- `get mqtt.status`: shows WiFi, NTP, IATA, endpoint status, status publishing state, and TX state.
+- `get mqtt.status`: shows Wi-Fi, NTP, IATA, endpoint status, status publishing state, and TX state.
 - `get mqtt.statuscfg`: shows whether periodic status messages are enabled as a simple `on` or `off` value. Most users can just use `get mqtt.status`.
 - `get mqtt.client_version`: shows the MQTT `client_version` string published by the repeater.
 - `get mqtt.iata`: shows the IATA/location code used in MQTT topics.
@@ -61,18 +83,20 @@ Legacy dotted aliases are also accepted:
 - `mqtt.letsmesh.eu`
 - `mqtt.letsmesh.us`
 
-### WiFi Settings For MQTT Repeaters
+### Wi-Fi Settings For MQTT Repeaters
 
-- `get wifi.status`: shows SSID, connection state, raw WiFi status code, IP, channel, and signal when connected.
-- `get wifi.ssid`: shows the configured WiFi SSID.
-- `set wifi.ssid <ssid>`: sets the WiFi SSID.
-- `set wifi.pwd <password>`: sets the WiFi password.
-- `get wifi.powersaving`: shows the current WiFi power save mode.
-- `set wifi.powersaving none|min|max`: sets WiFi power saving mode.
+- `get wifi.status`: shows SSID, connection state, raw Wi-Fi status code, IP, channel, and signal when connected.
+- `get wifi.ssid`: shows the configured Wi-Fi SSID.
+- `set wifi.ssid <ssid>`: sets the Wi-Fi SSID.
+- `set wifi.pwd <password>`: sets the Wi-Fi password.
+- `get wifi.powersaving`: shows the current Wi-Fi power save mode.
+- `set wifi.powersaving none|min|max`: sets Wi-Fi power saving mode.
 
 ### ESP-NOW Bridge Settings For MQTT Bridge Repeaters
 
 These commands are available on `*_repeater_mqtt_bridge` firmware targets.
+
+Bridge commands are for local ESP-NOW bridge use between nearby repeaters, such as linking repeaters on `Australia (Narrow)` and `Australia (Mid)`. They are not MQTT-over-WAN, VPN, or internet bridge controls.
 
 - `get bridge.channel`: shows the configured ESP-NOW bridge channel.
 - `set bridge.channel <channel>`: sets the ESP-NOW bridge channel and restarts the bridge. Use a value from `1` to `14`.
@@ -81,12 +105,12 @@ These commands are available on `*_repeater_mqtt_bridge` firmware targets.
 
 After running `set bridge.channel`, expect the bridge and web panel connection to drop briefly while the radio restarts. On current MQTT bridge test builds, this can look like the board rebooted.
 
-For `*_repeater_mqtt_bridge` builds that are connected to WiFi, the ESP-NOW bridge channel must match the active 2.4 GHz WiFi channel:
+For `*_repeater_mqtt_bridge` builds that are connected to Wi-Fi, the ESP-NOW bridge channel must match the active 2.4 GHz Wi-Fi channel:
 
 1. Run `get wifi.status`.
-2. Read the `channel:<n>` value from the connected WiFi status.
+2. Read the `channel:<n>` value from the connected Wi-Fi status.
 3. Run `get bridge.channel`.
-4. If the values differ, run `set bridge.channel <n>` using the WiFi channel value.
+4. If the values differ, run `set bridge.channel <n>` using the Wi-Fi channel value.
 5. Use the same `bridge.channel` and `bridge.secret` on every ESP-NOW bridge node that should talk together.
 
 Example:
@@ -133,7 +157,7 @@ These commands are only available on `LilyGo_TBeam_1W_*` repeater builds.
 - `set fan off`: forces the fan off and persists that mode across reboot.
 - `set fan timeout <Ns>`: changes the automatic post-TX hold window in seconds and persists it across reboot, for example `set fan timeout 45s`.
 
-Auto mode behavior:
+Auto mode behaviour:
 
 - forces the fan on during TX and keeps it on for the configured timeout afterward
 - otherwise turns the fan on at `48C`
@@ -160,7 +184,7 @@ Notes:
 - `start ota` releases the local HTTP redirect listener on port `80` so the OTA HTTP listener can take over without stopping the rest of the repeater services, regardless of whether the command is run from the web panel, serial CLI, or a remote companion/app CLI session
 - the `/app` Regions shortcut runs the existing MeshCore region commands in sequence: `region put au`, `region put au-STATE`, `region allowf au`, `region allowf au-STATE`, then `region save`
 
-## Companion WiFi Rescue Commands
+## Companion Wi-Fi Rescue Commands
 
 These commands are available in the serial rescue CLI for `*_companion_radio_wifi` builds.
 
@@ -171,14 +195,14 @@ To enter `CLI Rescue`:
 - long-press the user button within the first 8 seconds after boot
 - wait for `========= CLI Rescue =========`
 
-- `get wifi.status`: shows configured SSID, connection status, raw WiFi status code, IP, channel, and signal when connected.
-- `get wifi.ssid`: shows the configured WiFi SSID.
-- `get wifi.powersaving`: shows the current WiFi power saving mode.
-- `set wifi.ssid <ssid>`: saves a WiFi SSID and immediately retries connection.
-- `set wifi.pwd <password>`: saves a WiFi password and immediately retries connection.
-- `set wifi.powersaving none|min|max`: changes the WiFi power save mode.
+- `get wifi.status`: shows configured SSID, connection status, raw Wi-Fi status code, IP, channel, and signal when connected.
+- `get wifi.ssid`: shows the configured Wi-Fi SSID.
+- `get wifi.powersaving`: shows the current Wi-Fi power saving mode.
+- `set wifi.ssid <ssid>`: saves a Wi-Fi SSID and immediately retries connection.
+- `set wifi.pwd <password>`: saves a Wi-Fi password and immediately retries connection.
+- `set wifi.powersaving none|min|max`: changes the Wi-Fi power save mode.
 
-Companion WiFi builds also still support the existing rescue commands such as:
+Companion Wi-Fi builds also still support the existing rescue commands such as:
 
 - `set pin <6-digit-pin>`
 - `rebuild`

@@ -10,6 +10,26 @@ It is intended for:
 
 This is not a cloud API and not a separate backend service. The repeater firmware serves it directly.
 
+## Start Here
+
+You do not need this page for normal EastMesh use. Use the [Repeater Web Panel](./web-panel.md) if you just want to configure or check a repeater in a browser.
+
+Use this page when you want a local script, dashboard, or home-lab tool to talk directly to the repeater.
+
+The simplest useful API flow is:
+
+1. log in with the repeater admin password
+2. save the returned token
+3. send a CLI command through `/api/command`
+
+```bash
+TOKEN=$(curl -sk -X POST https://<repeater-ip>/login --data '<admin-password>')
+
+curl -sk https://<repeater-ip>/api/command \
+  -H "X-Auth-Token: $TOKEN" \
+  --data 'get mqtt.status'
+```
+
 ## Scope And Availability
 
 The API is available only when:
@@ -235,7 +255,7 @@ This is useful for:
 
 - remote diagnostics from a laptop or phone
 - simple scripts that collect operational state
-- admin tools that want to reuse existing CLI behavior instead of adding new firmware endpoints
+- admin tools that want to reuse existing CLI behaviour instead of adding new firmware endpoints
 
 Example:
 
@@ -363,4 +383,4 @@ If stats requests fail:
 - prefer `/api/command` when you need exact CLI parity
 - prefer `/api/stats` for dashboards and trend views
 - keep polling conservative, especially on repeaters with two active MQTT connections
-- if you are finished with troubleshooting, consider disabling the web panel with `set web off` to maximize heap headroom on constrained boards
+- if you are finished with troubleshooting, consider disabling the web panel with `set web off` to maximise heap headroom on constrained boards

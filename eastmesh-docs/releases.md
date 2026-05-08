@@ -4,10 +4,38 @@ EastMesh release assets are published on:
 
 - <https://github.com/xJARiD/MeshCore-EastMesh/releases>
 
-There are currently two release tracks in this repo:
+## Start Here
 
-- `companion-wifi`
-- `repeater-mqtt`
+If this is your first time flashing EastMesh firmware, the easiest path is:
+
+1. Open <https://flasher.eastmesh.au/>.
+2. Select the firmware that matches what the device will do.
+3. Select the board that matches your exact hardware.
+4. Select the version. The flasher defaults to the latest available release.
+5. Select the image type:
+   - `Update` for a normal firmware update
+   - `Full Flash` for a clean full-image flash
+6. Click `Flash Firmware`.
+7. After flashing, finish setup with `Open MeshCore Config Panel` or the `Serial Console`.
+
+If you are not sure which track you need, start with `companion-wifi` for app-connected companion devices or `repeater-mqtt` for a fixed repeater that should publish to MQTT.
+
+## Pick Your Track
+
+EastMesh publishes four release tracks:
+
+| Track | Use it when | Firmware filename suffix |
+| ----- | ----------- | ------------------------ |
+| `companion-wifi` | You want a companion device that connects over Wi-Fi instead of BLE or USB. | `*_companion_radio_wifi` |
+| `repeater-mqtt` | You want a repeater with Wi-Fi and MQTT uplink, usually feeding broker visibility such as EastMesh/CoreScope. | `*_repeater_mqtt` |
+| `repeater-bridge-espnow` | You want a local ESP-NOW bridge between nearby repeaters, without MQTT uplink or the EastMesh web panel. | `*_repeater_bridge_espnow` |
+| `repeater-mqtt-bridge` | You want one repeater to provide both MQTT uplink and local ESP-NOW bridge duties. | `*_repeater_mqtt_bridge` |
+
+!!! note "Bridge firmware is not a WAN bridge"
+
+    Bridge tracks are for bridging two nearby repeaters that operate on different MeshCore radio configs, for example `Australia (Narrow)` and `Australia (Mid)`.
+
+    They do not use MQTT to tunnel mesh traffic over the internet, WAN links, or VPNs.
 
 ## Pick The Right Asset
 
@@ -18,13 +46,24 @@ Examples:
 - `heltec_v4_companion_radio_wifi-v1.14.1-abcdef.bin`
 - `heltec_v4_repeater_mqtt-v1.14.1-eastmesh-v1.0.1-abcdef.bin`
 - `heltec_v4_repeater_mqtt-v1.14.1-eastmesh-v1.0.1-abcdef-merged.bin`
+- `heltec_v4_repeater_bridge_espnow-v1.15.0-abcdef.bin`
+- `heltec_v4_repeater_mqtt_bridge-v1.15.0-eastmesh-v1.4.0-abcdef.bin`
 
 The important part is the board/env prefix:
 
 - `*_companion_radio_wifi`
 - `*_repeater_mqtt`
+- `*_repeater_bridge_espnow`
+- `*_repeater_mqtt_bridge`
 
 ## Which File To Flash
+
+If you are using <https://flasher.eastmesh.au/>, choose the image type in the flasher:
+
+- `Update` = normal firmware update
+- `Full Flash` = clean full-image flash
+
+If you are manually downloading files from GitHub Releases, use the filename instead:
 
 Use the standard `.bin` file when you are updating an existing device with the same target and partition layout.
 
@@ -37,10 +76,12 @@ Practical rule:
 
 ## Flashing Flow
 
-1. Open the release page and download the file for your board.
-2. Confirm the board name in the filename matches your hardware.
-3. Choose one of the following: update existing firmware with the normal `.bin`, or erase the device first and flash the `-merged.bin`.
-4. Reboot the device and complete any post-flash setup such as WiFi, MQTT, or radio settings.
+1. Select firmware.
+2. Select board.
+3. Select version. The latest version is selected by default.
+4. Select image type: `Update` or `Full Flash`.
+5. Click `Flash Firmware`.
+6. After flashing, use `Open MeshCore Config Panel` or the `Serial Console` for post-flash setup such as Wi-Fi, MQTT, bridge, or radio settings.
 
 ## Recommended Flasher
 
@@ -48,32 +89,29 @@ The recommended flasher is:
 
 - <https://flasher.eastmesh.au/>
 
-It includes native support for:
+It includes native support for the common EastMesh firmware types and can also flash custom firmware files:
 
 - `companion_radio_wifi` firmware
 - `repeater_mqtt` firmware
 - custom firmware files
 
+For bridge releases, use the matching bridge option if the flasher shows one. Otherwise, download the release asset yourself and flash it as a custom firmware file.
+
 Recommended usage:
 
-- use the normal `.bin` there when you are updating an existing device
-- use the `-merged.bin` there after an erase when you want a clean flash
+- use `Update` when you are updating an existing device
+- use `Full Flash` when you want a clean full-image flash
 
-## Beginner Setup
+After flashing, there are two useful setup paths in the flasher.
 
-If this is your first time flashing EastMesh firmware, the easiest path is:
+### Open MeshCore Config Panel
 
-1. Open <https://flasher.eastmesh.au/>.
-2. Select the firmware type you want: `Companion WiFi`, `Repeater MQTT`, or `Custom`.
-3. Flash the correct firmware for your board.
-4. Use the built-in setup tools in the flasher site to finish first-time configuration.
-
-The flasher site includes two especially useful actions after flashing:
+Use `Open MeshCore Config Panel` to access the guided MeshCore setup tools:
 
 - `Repeater Setup`
 - `Console`
 
-### Repeater Setup
+#### Repeater Setup
 
 `Repeater Setup` is the guided first-time repeater flow.
 
@@ -90,11 +128,11 @@ It is the traditional way to configure a repeater after flashing, including:
 
 As of `v1.2.1`, the local repeater web panel also includes the same common repeater settings, so users can complete initial setup there and return for occasional troubleshooting or configuration changes. On MQTT repeaters that need maximum headroom, it is still best to disable the panel again when you are finished.
 
-### Console
+#### Console
 
 `Console` is the raw CLI interface.
 
-It is especially useful, and often required, for the initial Wi-Fi setup on both firmware tracks:
+It is especially useful, and often required, for initial Wi-Fi setup on Wi-Fi-capable firmware tracks:
 
 - `set wifi.ssid <your-ssid>`
 - `set wifi.pwd <your-password>`
@@ -103,8 +141,26 @@ This applies to:
 
 - `companion_radio_wifi`
 - `repeater_mqtt`
+- `repeater_mqtt_bridge`
 
-## Repeater MQTT Notes
+### Serial Console
+
+Use `Serial Console` when you want to connect over USB and type CLI commands directly.
+
+The flasher can connect and disconnect from the device over USB. It also includes preset CLI commands that populate the command input for easier setup:
+
+- `set wifi.ssid`
+- `set wifi.pwd`
+- `get wifi.status`
+- `get mqtt.status`
+- `set web on`
+- `get web.status`
+
+For `set` commands, complete the command in the input box before sending it. For example, select `set wifi.ssid`, add your Wi-Fi network name, then press `Send`.
+
+## Common First Steps
+
+### Repeater MQTT
 
 `repeater_mqtt` builds include the EastMesh MQTT additions. Depending on the board, they may also include the local web panel.
 
@@ -117,12 +173,37 @@ Typical first steps after flashing:
 - optionally set `mqtt.owner` and `mqtt.email`
 - optionally enable `letsmesh-eu` or `letsmesh-us`
 
-## Companion WiFi Notes
+### Repeater MQTT Bridge
 
-`companion_radio_wifi` builds are for companion devices that expose the app interface over WiFi instead of BLE or USB.
+`repeater_mqtt_bridge` builds combine the MQTT repeater role with local ESP-NOW bridge support.
 
 Typical first steps after flashing:
 
-- set WiFi credentials
+- set `wifi.ssid`
+- set `wifi.pwd`
+- set `mqtt.iata`
+- confirm `get mqtt.status`
+- check `get wifi.status` and note the connected Wi-Fi channel
+- set `bridge.channel` to match that Wi-Fi channel
+- set the same `bridge.secret` on every local ESP-NOW bridge node that should talk together
+
+### Repeater ESP-NOW Bridge
+
+`repeater_bridge_espnow` builds are for local ESP-NOW bridge nodes without MQTT uplink.
+
+Typical first steps after flashing:
+
+- configure the normal repeater settings for the board
+- set the intended MeshCore radio preset/config
+- set the same bridge channel and secret on the local bridge pair
+- confirm both bridge repeaters are physically nearby enough for ESP-NOW to work
+
+### Companion Wi-Fi
+
+`companion_radio_wifi` builds are for companion devices that expose the app interface over Wi-Fi instead of BLE or USB.
+
+Typical first steps after flashing:
+
+- set Wi-Fi credentials
 - confirm `get wifi.status`
-- connect your client app to the companion over WiFi
+- connect your client app to the companion over Wi-Fi
