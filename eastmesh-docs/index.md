@@ -1,15 +1,23 @@
 # MeshCore EastMesh Docs
 
-MeshCore-EastMesh keeps the upstream MeshCore firmware intact and adds an EastMesh layer on top for:
+MeshCore-EastMesh keeps the upstream MeshCore firmware intact and publishes four firmware tracks, depending on how the device needs to connect:
 
-- `repeater_mqtt` builds with native WiFi, MQTT, and the optional local web panel
-- `companion_radio_wifi` builds for Wi-Fi-connected companion devices
-- EastMesh-specific release automation and versioning on top of upstream MeshCore releases
+- `companion-wifi`: use this for Wi-Fi-connected companion devices. It stays closest to upstream MeshCore and adds the EastMesh Wi-Fi rescue/configuration commands.
+- `repeater-bridge-espnow`: use this when you need a plain upstream-style repeater ESP-NOW bridge without MQTT uplink or the EastMesh web panel.
+- `repeater-mqtt`: use this for a Wi-Fi repeater that should publish to an MQTT broker and, on supported ESP32 boards, offer the optional local web panel for setup and troubleshooting.
+- `repeater-mqtt-bridge`: use this when one repeater needs both MQTT uplink and ESP-NOW bridge duties, including bridge channel/secret controls for keeping the bridge aligned with Wi-Fi.
+
+!!! note "Bridge tracks are local radio bridges"
+
+    The bridge tracks are for bridging two nearby repeaters that operate on different MeshCore radio configs, for example one repeater on `Australia (Narrow)` and another on `Australia (Mid)`.
+
+    They are not MQTT-over-WAN, VPN, or internet bridge releases. MQTT is still the uplink/visibility path for MQTT firmware; it is not used to tunnel mesh traffic between distant sites.
 
 If you are just trying to pick a board or download firmware, start with:
 
 - [Compare Boards](./boards.md)
 - [Download and Flash Releases](./releases.md)
+- [Flash NOW!](https://flasher.eastmesh.au)
 
 ## End User Guides
 
