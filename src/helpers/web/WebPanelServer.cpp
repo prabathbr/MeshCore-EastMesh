@@ -2865,9 +2865,10 @@ bool WebPanelServer::start() {
 void WebPanelServer::stop() {
   stopRedirectServer();
   if (_server != nullptr) {
-    WEB_PANEL_LOG("server stopped");
-    httpd_ssl_stop(_server);
+    httpd_handle_t server = _server;
     _server = nullptr;
+    WEB_PANEL_LOG("server stopped");
+    httpd_ssl_stop(server);
   }
   _token[0] = 0;
   _last_activity_ms = 0;
@@ -2883,9 +2884,10 @@ bool WebPanelServer::hasSessionToken() const {
 
 void WebPanelServer::stopRedirectServer() {
   if (_redirect_server != nullptr) {
-    WEB_PANEL_LOG("redirect server stopped");
-    httpd_stop(_redirect_server);
+    httpd_handle_t redirect_server = _redirect_server;
     _redirect_server = nullptr;
+    WEB_PANEL_LOG("redirect server stopped");
+    httpd_stop(redirect_server);
   }
 }
 
