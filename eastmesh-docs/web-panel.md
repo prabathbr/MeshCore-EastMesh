@@ -340,8 +340,11 @@ On mobile:
 
 1. Press `Start OTA`.
 2. Confirm the action.
-3. The local HTTP redirect listener on port `80` is released so OTA can take over that port.
-4. Continue with your normal OTA workflow.
+3. The panel starts OTA, then opens the returned `http://.../update` URL.
+4. The local HTTP redirect listener on port `80` is released so OTA can take over that port.
+5. Continue with your normal OTA workflow.
+
+If the repeater is already connected to Wi-Fi, OTA uses the existing LAN address. If Wi-Fi is not connected, the repeater starts the `MeshCore-OTA` access point and returns that OTA address instead.
 
 If an older build sends you through a strange redirect after `start ota`, use the web `Start OTA` button to begin the upgrade. This redirect issue is fixed in `observer-eastmesh-v1.3.11`.
 

@@ -2678,10 +2678,14 @@ const char kWebPanelAppHtml[] PROGMEM = R"HTML(
     };
     document.getElementById("otaBtn").onclick = async () => {
       if (confirm("Start OTA mode now?")) {
+        const otaBtn = document.getElementById("otaBtn");
+        otaBtn.disabled = true;
         const result = await runCommand("start ota");
         const match = result.text && result.text.match(/https?:\/\/\S+/);
         if (result.ok && match) {
           window.location.href = match[0];
+        } else {
+          otaBtn.disabled = false;
         }
       }
     };
