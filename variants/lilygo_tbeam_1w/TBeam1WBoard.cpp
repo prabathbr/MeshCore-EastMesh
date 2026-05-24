@@ -17,13 +17,21 @@ constexpr uint32_t kMaxFanPostTxHoldMs = 600000;
 void TBeam1WBoard::begin() {
   ESP32Board::begin();
 
+  // Keep both shared-SPI devices deselected before either SD or LoRa is touched.
+  pinMode(SDCARD_CS, OUTPUT);
+  digitalWrite(SDCARD_CS, HIGH);
+  pinMode(P_LORA_NSS, OUTPUT);
+  digitalWrite(P_LORA_NSS, HIGH);
+
   // Power on radio module (must be done before radio init)
   pinMode(SX126X_POWER_EN, OUTPUT);
   digitalWrite(SX126X_POWER_EN, HIGH);
   radio_powered = true;
   delay(10);  // Allow radio to power up
 
-  // RF switch RXEN pin handled by RadioLib via setRfSwitchPins()
+  // RF switch RXEN pin is normally handled by RadioLib; start in RX-safe state.
+  pinMode(SX126X_RXEN, OUTPUT);
+  digitalWrite(SX126X_RXEN, HIGH);
 
   // Initialize LED
   pinMode(LED_PIN, OUTPUT);
@@ -37,7 +45,8 @@ void TBeam1WBoard::begin() {
 }
 
 void TBeam1WBoard::onBeforeTransmit() {
-  // RF switching handled by RadioLib via SX126X_DIO2_AS_RF_SWITCH and setRfSwitchPins()
+  // Switch the external LNA off before TX; DIO2 still controls the PA path.
+  digitalWrite(SX126X_RXEN, LOW);
   digitalWrite(LED_PIN, HIGH);  // TX LED on
   if (fan_mode == FanMode::Auto) {
     fan_force_on_until = millis() + fan_post_tx_hold_ms;
@@ -46,6 +55,7 @@ void TBeam1WBoard::onBeforeTransmit() {
 }
 
 void TBeam1WBoard::onAfterTransmit() {
+  digitalWrite(SX126X_RXEN, HIGH);
   digitalWrite(LED_PIN, LOW);   // TX LED off
   if (fan_mode == FanMode::Auto) {
     fan_force_on_until = millis() + fan_post_tx_hold_ms;

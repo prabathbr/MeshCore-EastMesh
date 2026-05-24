@@ -33,7 +33,13 @@ bool radio_init() {
   fallback_clock.begin();
   rtc_clock.begin(Wire);
 
-  // Initialize SPI for radio
+  // Radio and SD share SPI. Keep SD deselected before binding the bus to LoRa.
+  pinMode(SDCARD_CS, OUTPUT);
+  digitalWrite(SDCARD_CS, HIGH);
+  pinMode(P_LORA_NSS, OUTPUT);
+  digitalWrite(P_LORA_NSS, HIGH);
+
+  // Initialize SPI for radio.
   spi.begin(P_LORA_SCLK, P_LORA_MISO, P_LORA_MOSI);
 
   // GPS serial initialized by EnvironmentSensorManager::begin()
@@ -43,6 +49,7 @@ bool radio_init() {
     // T-Beam 1W has external PA requiring longer ramp time (>800us recommended)
     // RADIOLIB_SX126X_PA_RAMP_800U = 0x05
     radio.setTxParams(LORA_TX_POWER, RADIOLIB_SX126X_PA_RAMP_800U);
+    digitalWrite(SX126X_RXEN, HIGH);
   }
   return success;
 }
