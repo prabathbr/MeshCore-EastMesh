@@ -2683,7 +2683,9 @@ const char kWebPanelAppHtml[] PROGMEM = R"HTML(
         const result = await runCommand("start ota");
         const match = result.text && result.text.match(/https?:\/\/\S+/);
         if (result.ok && match) {
-          window.location.href = match[0];
+          window.setTimeout(() => {
+            window.location.href = match[0];
+          }, 5000);
         } else {
           otaBtn.disabled = false;
         }
