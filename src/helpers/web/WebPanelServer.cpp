@@ -2685,7 +2685,7 @@ const char kWebPanelAppHtml[] PROGMEM = R"HTML(
         if (result.ok && match) {
           window.setTimeout(() => {
             window.location.href = match[0];
-          }, 5000);
+          }, 3000);
         } else {
           otaBtn.disabled = false;
         }
