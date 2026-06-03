@@ -77,6 +77,33 @@ releases:
     breaking_changes:
       - "The EastMesh MQTT release tag format and PlatformIO target suffix changed to Observer naming."
 
+  - track: observer-eastmesh
+    version: "2026.6.0"
+    tag: "observer-eastmesh-v2026.6.0"
+    date: "2026-06-03"
+    previous_version: "2026.5.1"
+    summary: "Updates Observer firmware with the latest upstream MeshCore dev changes plus EastMesh web panel, MQTT, radio, and board support fixes."
+    changes:
+      - type: added
+        area: mqtt
+        text: "Added configurable custom MQTT broker support alongside the curated EastMesh and LetsMesh endpoints."
+      - type: added
+        area: build
+        text: "Added Station G3 ESP32 Observer firmware targets."
+      - type: added
+        area: cli
+        text: "Added `flood.max.unscoped` so unscoped flood packets can use a separate hop limit from scoped flood traffic."
+      - type: fixed
+        area: web
+        text: "Preserved web panel sessions across Wi-Fi reconnects and hardened OTA startup from the local web panel."
+      - type: fixed
+        area: radio
+        text: "Hardened LilyGo T-Beam 1W radio setup and restored the missing SX126x register patch."
+      - type: changed
+        area: upstream
+        text: "Merged upstream MeshCore dev updates including sensor handling, RAK4631 BME680/BSEC support, documentation refreshes, and board/platform fixes."
+    breaking_changes: []
+
   - track: observer-eastmesh-bridge-espnow
     version: "2026.5.1"
     tag: "observer-eastmesh-bridge-espnow-v2026.5.1"
@@ -95,3 +122,30 @@ releases:
         text: "Updated EastMesh release, local build, board, and CLI documentation to use Observer ESP-NOW naming."
     breaking_changes:
       - "The EastMesh MQTT bridge release tag format and PlatformIO target suffix changed to Observer ESP-NOW naming."
+
+  - track: observer-eastmesh-bridge-espnow
+    version: "2026.6.0"
+    tag: "observer-eastmesh-bridge-espnow-v2026.6.0"
+    date: "2026-06-03"
+    previous_version: "2026.5.1"
+    summary: "Updates Observer ESP-NOW bridge firmware with the latest upstream MeshCore dev changes plus EastMesh radio, web, MQTT, and board support fixes."
+    changes:
+      - type: added
+        area: mqtt
+        text: "Added configurable custom MQTT broker support alongside the curated EastMesh and LetsMesh endpoints."
+      - type: added
+        area: build
+        text: "Added Station G3 ESP32 Observer ESP-NOW firmware targets."
+      - type: added
+        area: cli
+        text: "Added `flood.max.unscoped` so unscoped flood packets can use a separate hop limit from scoped flood traffic."
+      - type: fixed
+        area: web
+        text: "Preserved web panel sessions across Wi-Fi reconnects and hardened OTA startup from the local web panel."
+      - type: fixed
+        area: radio
+        text: "Hardened LilyGo T-Beam 1W radio setup and restored the missing SX126x register patch."
+      - type: changed
+        area: upstream
+        text: "Merged upstream MeshCore dev updates including sensor handling, RAK4631 BME680/BSEC support, documentation refreshes, and board/platform fixes."
+    breaking_changes: []
