@@ -100,7 +100,10 @@ void CommonCLI::loadPrefsInt(FILESYSTEM* fs, const char* filename) {
     if (file.available() >= (int)sizeof(_prefs->fan_timeout_secs)) {
       file.read((uint8_t *)&_prefs->fan_timeout_secs, sizeof(_prefs->fan_timeout_secs));          // 293
     }
-    // next: 295
+    if (file.available() >= (int)sizeof(_prefs->flood_max_unscoped)) {
+      file.read((uint8_t *)&_prefs->flood_max_unscoped, sizeof(_prefs->flood_max_unscoped));       // 295
+    }
+    // next: 296
 
     // sanitise bad pref values
     _prefs->rx_delay_base = constrain(_prefs->rx_delay_base, 0, 20.0f);
@@ -196,7 +199,8 @@ void CommonCLI::savePrefs(FILESYSTEM* fs) {
     file.write((uint8_t *)&_prefs->rx_boosted_gain, sizeof(_prefs->rx_boosted_gain));              // 291
     file.write((uint8_t *)&_prefs->fan_mode, sizeof(_prefs->fan_mode));                            // 292
     file.write((uint8_t *)&_prefs->fan_timeout_secs, sizeof(_prefs->fan_timeout_secs));            // 293
-    // next: 295
+    file.write((uint8_t *)&_prefs->flood_max_unscoped, sizeof(_prefs->flood_max_unscoped));        // 295
+    // next: 296
 
     file.close();
   }
@@ -572,7 +576,7 @@ void CommonCLI::handleSetCmd(uint32_t sender_timestamp, char* command, char* rep
     _prefs->disable_fwd = memcmp(&config[7], "off", 3) == 0;
     savePrefs();
     strcpy(reply, _prefs->disable_fwd ? "OK - repeat is now OFF" : "OK - repeat is now ON");
-#if defined(USE_SX1262) || defined(USE_SX1268)
+#if defined(USE_SX1262) || defined(USE_SX1268) || defined(USE_LR1110)
   } else if (memcmp(config, "radio.rxgain ", 13) == 0) {
     _prefs->rx_boosted_gain = memcmp(&config[13], "on", 2) == 0;
     strcpy(reply, "OK");
@@ -627,6 +631,15 @@ void CommonCLI::handleSetCmd(uint32_t sender_timestamp, char* command, char* rep
     uint8_t m = atoi(&config[10]);
     if (m <= 64) {
       _prefs->flood_max = m;
+      savePrefs();
+      strcpy(reply, "OK");
+    } else {
+      strcpy(reply, "Error, max 64");
+    }
+  } else if (memcmp(config, "flood.max.unscoped ", 19) == 0) {
+    uint8_t m = atoi(&config[19]);
+    if (m <= 64) {
+      _prefs->flood_max_unscoped = m;
       savePrefs();
       strcpy(reply, "OK");
     } else {
@@ -794,7 +807,7 @@ void CommonCLI::handleGetCmd(uint32_t sender_timestamp, char* command, char* rep
     sprintf(reply, "> %s", StrHelper::ftoa(_prefs->node_lat));
   } else if (memcmp(config, "lon", 3) == 0) {
     sprintf(reply, "> %s", StrHelper::ftoa(_prefs->node_lon));
-#if defined(USE_SX1262) || defined(USE_SX1268)
+#if defined(USE_SX1262) || defined(USE_SX1268) || defined(USE_LR1110)
   } else if (memcmp(config, "radio.rxgain", 12) == 0) {
     sprintf(reply, "> %s", _prefs->rx_boosted_gain ? "on" : "off");
 #endif
@@ -807,6 +820,8 @@ void CommonCLI::handleGetCmd(uint32_t sender_timestamp, char* command, char* rep
     sprintf(reply, "> %s", StrHelper::ftoa(_prefs->rx_delay_base));
   } else if (memcmp(config, "txdelay", 7) == 0) {
     sprintf(reply, "> %s", StrHelper::ftoa(_prefs->tx_delay_factor));
+  } else if (memcmp(config, "flood.max.unscoped", 18) == 0) {
+    sprintf(reply, "> %d", (uint32_t)_prefs->flood_max_unscoped);
   } else if (memcmp(config, "flood.max", 9) == 0) {
     sprintf(reply, "> %d", (uint32_t)_prefs->flood_max);
   } else if (memcmp(config, "direct.txdelay", 14) == 0) {

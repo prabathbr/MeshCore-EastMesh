@@ -155,6 +155,13 @@ OK
 
 > If `noise_floor` reports `0`, check `get agc.reset.interval`; if it is not `0`, try `set agc.reset.interval 0` and test again.
 
+### Flood Forwarding Limit
+
+- `get flood.max.unscoped`: shows the hop limit for unscoped flood packets.
+- `set flood.max.unscoped <0-64>`: sets the hop limit for unscoped flood packets.
+
+Observer builds default this value to `64`. Lower values can limit how far unscoped flood traffic is repeated while leaving scoped/region flood forwarding controlled by `flood.max`.
+
 ### Board Battery Reporting
 
 - On observer builds, background battery sampling used for MQTT/status history is rate-limited to about once per minute. Explicit status and telemetry requests still refresh the reading immediately.
