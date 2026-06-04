@@ -441,6 +441,7 @@ const char kWebPanelAppHtml[] PROGMEM = R"HTML(
     .panel-copy, .panel-note, .panel-status, .panel-warning, .stats-empty, .stats-error, .events-empty, .spark-status { font-size:13px; line-height:1.45; font-weight:400; }
     .top-banner { display:none; margin-bottom:18px; padding:12px 14px; border-radius:12px; border:1px solid rgba(212,90,90,.45); background:rgba(212,90,90,.12); color:var(--text); }
     .top-banner.visible { display:block; }
+    .top-banner a { color:var(--text); font-weight:700; }
     .panel-warning { min-height:1.4em; color:var(--status-red); }
     .panel-note { color:var(--text-muted); }
     .panel-status { min-height:1.4em; color:var(--text-muted); }
@@ -539,6 +540,7 @@ const char kWebPanelAppHtml[] PROGMEM = R"HTML(
 </head>
 <body>
   <main>
+    <section class="top-banner" id="firmwareUpdateBanner"><span id="firmwareUpdateText"></span> <a id="firmwareUpdateLink" href="https://github.com/xJARiD/MeshCore-EastMesh/releases" target="_blank" rel="noopener">View releases</a> <a id="firmwareFlasherLink" href="https://flasher.eastmesh.au" target="_blank" rel="noopener">Open flasher</a></section>
     <section class="top-banner" id="mqttIataBanner">MQTT IATA needs setting under MQTT Settings.</section>
     <section class="card" id="login" style="display:none">
       <h1>Repeater Config</h1>
@@ -1089,6 +1091,8 @@ const char kWebPanelAppHtml[] PROGMEM = R"HTML(
       "Victoria": "vic"
     };
     const TOKEN_KEY = "repeater-token";
+    const EASTMESH_RELEASES_API = "https://api.github.com/repos/xJARiD/MeshCore-EastMesh/releases?per_page=30";
+    const EASTMESH_RELEASES_URL = "https://github.com/xJARiD/MeshCore-EastMesh/releases";
     function readStoredToken() {
       try {
         const sessionToken = sessionStorage.getItem(TOKEN_KEY);
@@ -1198,6 +1202,73 @@ const char kWebPanelAppHtml[] PROGMEM = R"HTML(
     }
     function parseReplyValue(text) {
       return (text || "").replace(/^>\s*/, "").trim();
+    }
+    function parseEastMeshClientVersion(value) {
+      const match = String(value || "").match(/(?:EastMesh\/|eastmesh-)(v20\d{2}\.\d+\.\d+)/i);
+      return match ? match[1] : "";
+    }
+    function parseReleaseTagVersion(tagName) {
+      const match = String(tagName || "").match(/(?:^|-)v(20\d{2})\.(\d+)\.(\d+)$/);
+      return match ? `v${match[1]}.${match[2]}.${match[3]}` : "";
+    }
+    function versionParts(version) {
+      const match = String(version || "").match(/^v(\d+)\.(\d+)\.(\d+)$/);
+      return match ? [Number(match[1]), Number(match[2]), Number(match[3])] : null;
+    }
+    function compareVersions(a, b) {
+      const left = versionParts(a);
+      const right = versionParts(b);
+      if (!left || !right) return 0;
+      for (let i = 0; i < 3; i++) {
+        if (left[i] !== right[i]) return left[i] > right[i] ? 1 : -1;
+      }
+      return 0;
+    }
+    function newestEastMeshRelease(releases) {
+      if (!Array.isArray(releases)) return null;
+      return releases.reduce((newest, release) => {
+        if (!release || release.draft || release.prerelease) return newest;
+        const version = parseReleaseTagVersion(release.tag_name);
+        if (!version) return newest;
+        if (!newest || compareVersions(version, newest.version) > 0) {
+          return { version, url: release.html_url || EASTMESH_RELEASES_URL };
+        }
+        return newest;
+      }, null);
+    }
+    function setFirmwareUpdateBanner(message, url) {
+      const banner = document.getElementById("firmwareUpdateBanner");
+      const text = document.getElementById("firmwareUpdateText");
+      const link = document.getElementById("firmwareUpdateLink");
+      if (!banner || !text || !link) return;
+      if (!message) {
+        banner.classList.remove("visible");
+        text.textContent = "";
+        link.href = EASTMESH_RELEASES_URL;
+        return;
+      }
+      text.textContent = message;
+      link.href = url || EASTMESH_RELEASES_URL;
+      banner.classList.add("visible");
+    }
+    async function checkFirmwareUpdate(clientVersion) {
+      const currentVersion = parseEastMeshClientVersion(clientVersion);
+      if (!currentVersion) {
+        setFirmwareUpdateBanner("", "");
+        return;
+      }
+      try {
+        const response = await fetch(EASTMESH_RELEASES_API, { cache:"no-store" });
+        if (!response.ok) return;
+        const latest = newestEastMeshRelease(await response.json());
+        if (latest && compareVersions(latest.version, currentVersion) > 0) {
+          setFirmwareUpdateBanner(`Firmware update available: ${latest.version} is newer than ${currentVersion}.`, latest.url);
+        } else {
+          setFirmwareUpdateBanner("", "");
+        }
+      } catch (_) {
+        setFirmwareUpdateBanner("", "");
+      }
     }
     function isCommandError(text) {
       const value = parseReplyValue(text).toLowerCase();
@@ -2230,6 +2301,7 @@ const char kWebPanelAppHtml[] PROGMEM = R"HTML(
       document.getElementById("repeaterSettingsPanel").style.display = show && !isStatsPage ? "block" : "none";
       if (!show) {
         if (mqttIataBanner) mqttIataBanner.classList.remove("visible");
+        setFirmwareUpdateBanner("", "");
         commandQueue = Promise.resolve();
         const passwordEl = document.getElementById("password");
         if (passwordEl) passwordEl.value = "";
@@ -2325,6 +2397,9 @@ const char kWebPanelAppHtml[] PROGMEM = R"HTML(
       }
       if (inputId === "nodeName") {
         updatePanelTitle(value);
+      }
+      if (inputId === "clientVersionValue") {
+        checkFirmwareUpdate(value);
       }
     }
     async function copyToClipboard(value, successMessage) {

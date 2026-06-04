@@ -150,6 +150,8 @@ It includes:
 
 Use `Start OTA` only when you intend to update firmware.
 
+If the browser can reach GitHub, the app page checks the EastMesh release version from `mqtt.client_version` against published MeshCore-EastMesh releases. When a newer EastMesh release tag is available, a firmware update notice appears at the top of the page.
+
 ### `/stats`
 
 The `/stats` page is the home for current status and historical visibility.
