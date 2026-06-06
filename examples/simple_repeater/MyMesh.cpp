@@ -763,6 +763,7 @@ bool MyMesh::allowPacketForward(const mesh::Packet *packet) {
   if (packet->isRouteFlood()) {
     if (packet->getPathHashCount() >= _prefs.flood_max) return false;
     if (packet->getRouteType() == ROUTE_TYPE_FLOOD && packet->getPathHashCount() >= _prefs.flood_max_unscoped) return false;
+    if (packet->getPayloadType() == PAYLOAD_TYPE_ADVERT && packet->getPathHashCount() >= _prefs.flood_max_advert) return false;
   }
   if (packet->isRouteFlood() && recv_pkt_region == NULL) {
     MESH_DEBUG_PRINTLN("allowPacketForward: unknown transport code, or wildcard not allowed for FLOOD packet");
@@ -1241,6 +1242,7 @@ MyMesh::MyMesh(mesh::MainBoard &board, mesh::Radio &radio, mesh::MillisecondCloc
   _prefs.flood_advert_interval = 47; // 47 hours
   _prefs.flood_max = 64;
   _prefs.flood_max_unscoped = 64;
+  _prefs.flood_max_advert = 8;
   _prefs.interference_threshold = 0; // disabled
 
   // bridge defaults
@@ -2335,6 +2337,8 @@ void MyMesh::handleCommand(uint32_t sender_timestamp, char *command, char *reply
     mqtt.formatStatusReply(reply, 160);
   } else if (strcmp(command, "get mqtt.client_version") == 0) {
     sprintf(reply, "> %s", mqtt.getClientVersion());
+  } else if (strcmp(command, "get mqtt.client_env") == 0) {
+    sprintf(reply, "> %s", mqtt.getClientEnv());
   } else if (strcmp(command, "get mqtt.iata") == 0) {
     sprintf(reply, "> %s", mqtt.getIata());
   } else if (strcmp(command, "get mqtt.owner") == 0) {

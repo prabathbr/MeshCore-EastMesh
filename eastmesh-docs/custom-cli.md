@@ -37,6 +37,7 @@ No-argument `get` commands must be entered exactly as shown.
 - `get mqtt.status`: shows Wi-Fi, NTP, IATA, endpoint status, status publishing state, and TX state.
 - `get mqtt.statuscfg`: shows whether periodic status messages are enabled as a simple `on` or `off` value. Most users can just use `get mqtt.status`.
 - `get mqtt.client_version`: shows the MQTT `client_version` string published by the repeater.
+- `get mqtt.client_env`: shows the PlatformIO env used to build the repeater firmware.
 - `get mqtt.iata`: shows the IATA/location code used in MQTT topics.
 - `set mqtt.iata <code>`: sets the IATA/location code, for example `MEL`.
 - `set mqtt.iata UNSET`: marks MQTT IATA as not configured yet. While it is `UNSET`, enabled MQTT brokers stay disconnected until a real code is saved.
@@ -159,8 +160,10 @@ OK
 
 - `get flood.max.unscoped`: shows the hop limit for unscoped flood packets.
 - `set flood.max.unscoped <0-64>`: sets the hop limit for unscoped flood packets.
+- `get flood.max.advert`: shows the hop limit for flooded advert packets.
+- `set flood.max.advert <0-64>`: sets the hop limit for flooded advert packets.
 
-Observer builds default this value to `64`. Lower values can limit how far unscoped flood traffic is repeated while leaving scoped/region flood forwarding controlled by `flood.max`.
+Observer builds default `flood.max.unscoped` to `64`. Lower values can limit how far unscoped flood traffic is repeated while leaving scoped/region flood forwarding controlled by `flood.max`.
 
 ### Board Battery Reporting
 

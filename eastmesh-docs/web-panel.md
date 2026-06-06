@@ -150,6 +150,10 @@ It includes:
 
 Use `Start OTA` only when you intend to update firmware.
 
+If the browser can reach the EastMesh flasher firmware manifest, the app page checks the EastMesh release version from `mqtt.client_version` against published MeshCore-EastMesh releases. When a newer EastMesh release tag is available, a firmware update notice appears at the top of the page.
+
+For builds that include `CLIENT_ENV`, the notice can show `Update now`. This downloads the matching non-merged `.bin` from the EastMesh flasher firmware mirror, shows progress in the banner, uploads the firmware through the HTTPS web panel, and lets the device reboot. This requires CORS headers on the flasher `/firmwares/` paths.
+
 ### `/stats`
 
 The `/stats` page is the home for current status and historical visibility.
@@ -195,7 +199,8 @@ This section includes:
 - Private Key
 - Advert Interval
 - Flood Interval
-- Flood Max
+- Scoped Flood Max
+- Unscoped Flood Max
 - Owner Info
 
 Notes:
@@ -343,7 +348,7 @@ On mobile:
 
 1. Press `Start OTA`.
 2. Confirm the action.
-3. The panel starts OTA, then opens the returned `http://.../update` URL.
+3. The panel starts OTA, waits briefly for the OTA HTTP listener to take over port `80`, then opens the returned `http://.../update` URL.
 4. The local HTTP redirect listener on port `80` is released so OTA can take over that port.
 5. Continue with your normal OTA workflow.
 

@@ -61,12 +61,14 @@ private:
   RouteContext _route_context;
 
   static esp_err_t handleIndex(httpd_req_t* req);
+  static esp_err_t handleFavicon(httpd_req_t* req);
   static esp_err_t handleHttpRedirect(httpd_req_t* req);
   static esp_err_t handleApp(httpd_req_t* req);
   static esp_err_t handleStatsPage(httpd_req_t* req);
   static esp_err_t handleLogin(httpd_req_t* req);
   static esp_err_t handleSession(httpd_req_t* req);
   static esp_err_t handleCommand(httpd_req_t* req);
+  static esp_err_t handleFirmwareUpdate(httpd_req_t* req);
   static esp_err_t handleStats(httpd_req_t* req);
 
   bool readRequestBody(httpd_req_t* req, char* buffer, size_t buffer_size) const;
