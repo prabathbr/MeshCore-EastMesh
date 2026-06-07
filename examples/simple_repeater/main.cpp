@@ -34,6 +34,9 @@ void setup() {
   delay(1000);
 
   board.begin();
+
+  sensors.begin();
+
   archive.begin();
 
 #if defined(MESH_DEBUG) && defined(NRF52_PLATFORM)
@@ -89,8 +92,6 @@ void setup() {
   mesh::Utils::printHex(Serial, the_mesh.self_id.pub_key, PUB_KEY_SIZE); Serial.println();
 
   command[0] = 0;
-
-  sensors.begin();
 
   the_mesh.begin(fs, &archive);
 

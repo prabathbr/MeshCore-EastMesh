@@ -15,9 +15,12 @@ AsyncWebServer* ota_server = nullptr;
 char ota_id_buf[60];
 char ota_home_buf[90];
 volatile bool ota_start_pending = false;
+constexpr uint8_t kOtaStartAttempts = 60;
+constexpr uint32_t kOtaStartRetryDelayMs = 500;
 
-void startOTAServerNow() {
+bool startOTAServerNow() {
   if (ota_server != nullptr) {
+    ota_server->end();
     delete ota_server;
     ota_server = nullptr;
   }
@@ -34,11 +37,28 @@ void startOTAServerNow() {
   AsyncElegantOTA.setID(ota_id_buf);
   AsyncElegantOTA.begin(ota_server);    // Start ElegantOTA
   ota_server->begin();
+  if (ota_server->state() != LISTEN) {
+    ota_server->end();
+    delete ota_server;
+    ota_server = nullptr;
+    return false;
+  }
+  return true;
 }
 
 void startOTAServerTask(void*) {
-  vTaskDelay(pdMS_TO_TICKS(750));
-  startOTAServerNow();
+  vTaskDelay(pdMS_TO_TICKS(1500));
+  for (uint8_t attempt = 1; attempt <= kOtaStartAttempts; ++attempt) {
+    if (startOTAServerNow()) {
+      MESH_DEBUG_PRINTLN("OTA server listening on port 80");
+      ota_start_pending = false;
+      vTaskDelete(nullptr);
+      return;
+    }
+    MESH_DEBUG_PRINTLN("OTA server port 80 busy, retry %u/%u", attempt, kOtaStartAttempts);
+    vTaskDelay(pdMS_TO_TICKS(kOtaStartRetryDelayMs));
+  }
+  MESH_DEBUG_PRINTLN("OTA server failed to bind port 80");
   ota_start_pending = false;
   vTaskDelete(nullptr);
 }
@@ -68,8 +88,12 @@ bool ESP32Board::startOTAUpdate(const char* id, char reply[]) {
   if (!ota_start_pending) {
     ota_start_pending = true;
     if (xTaskCreate(startOTAServerTask, "ota-start", 4096, nullptr, 1, nullptr) != pdPASS) {
-      startOTAServerNow();
+      const bool started = startOTAServerNow();
       ota_start_pending = false;
+      if (!started) {
+        strcpy(reply, "Error - OTA listener start failed");
+        return false;
+      }
     }
   }
 

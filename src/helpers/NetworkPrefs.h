@@ -6,7 +6,8 @@
 struct NetworkPrefs {
   uint32_t magic;
   uint8_t wifi_powersave;
-  uint8_t reserved[3];
+  uint8_t wifi_channel;
+  uint8_t reserved[2];
   char wifi_ssid[33];
   char wifi_pwd[65];
 };

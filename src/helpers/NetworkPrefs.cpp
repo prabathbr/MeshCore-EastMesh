@@ -53,6 +53,7 @@ void NetworkPrefsStore::setDefaults(NetworkPrefs& prefs) {
   memset(&prefs, 0, sizeof(prefs));
   prefs.magic = kMagic;
   prefs.wifi_powersave = 0;
+  prefs.wifi_channel = 0;
 }
 
 bool NetworkPrefsStore::load(FILESYSTEM* fs, NetworkPrefs& prefs,
@@ -101,6 +102,9 @@ bool NetworkPrefsStore::load(FILESYSTEM* fs, NetworkPrefs& prefs,
   prefs = persisted;
   if (prefs.wifi_powersave > 2) {
     prefs.wifi_powersave = 0;
+  }
+  if (prefs.wifi_channel < 1 || prefs.wifi_channel > 14) {
+    prefs.wifi_channel = 0;
   }
   return true;
 }
