@@ -137,6 +137,8 @@ class MyMesh : public mesh::Mesh, public CommonCLICallbacks, public WebPanelComm
   bool _archive_neighbours_dirty;
   bool _battery_sample_valid;
   uint16_t _battery_mv_cache;
+  bool _web_sensor_snapshot_valid;
+  WebSensorSnapshot _web_sensor_snapshot;
   NodePrefs _prefs;
   ClientACL  acl;
   CommonCLI _cli;

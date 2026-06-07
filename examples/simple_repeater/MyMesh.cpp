@@ -1216,6 +1216,7 @@ MyMesh::MyMesh(mesh::MainBoard &board, mesh::Radio &radio, mesh::MillisecondCloc
   _archive_neighbours_dirty = false;
   _battery_sample_valid = false;
   _battery_mv_cache = 0;
+  _web_sensor_snapshot_valid = false;
   region_load_active = false;
   memset(&_stats_state, 0, sizeof(_stats_state));
 
@@ -1332,9 +1333,11 @@ void MyMesh::begin(FILESYSTEM *fs, ArchiveStorage* archive) {
   web.setCommandRunner(this);
   web.setNetworkStateProvider(&network);
   web.begin(_fs);
+#if defined(TBEAM_SUPREME_SX1262)
   if (web.isWebEnabled()) {
     network.loop(true);
   }
+#endif
   _stats_history.begin(web.isWebStatsEnabled(), _archive);
   if (web.isWebStatsEnabled() && !_stats_history.isLiveOnly() && _archive != nullptr && _archive->isMounted()) {
     restoreArchiveNeighbours();
@@ -1356,7 +1359,7 @@ void MyMesh::begin(FILESYSTEM *fs, ArchiveStorage* archive) {
   mqtt.setNetworkStateProvider(&network);
 #endif
   mqtt.begin(_fs);
-#if defined(ESP_PLATFORM)
+#if defined(ESP_PLATFORM) && defined(TBEAM_SUPREME_SX1262)
   if (mqtt.isActive()) {
     network.loop(true);
   }
@@ -1951,6 +1954,8 @@ void MyMesh::updateStatsHistory(unsigned long now_ms) {
     if (!live_stats_headroom_low) {
       const uint16_t battery_mv = getBatteryMilliVolts();
       WebSensorSnapshot sensor_snapshot = collectWebSensorSnapshot(board, sensors, battery_mv);
+      _web_sensor_snapshot = sensor_snapshot;
+      _web_sensor_snapshot_valid = true;
       HistorySample sample{};
       sample.epoch_secs = getRTCClock()->getCurrentTime();
       sample.uptime_secs = static_cast<uint32_t>(uptime_millis / 1000);
@@ -2648,7 +2653,15 @@ bool MyMesh::formatWebStatsSummaryJson(char* reply, size_t reply_size) {
   const int battery_display_pct =
       (battery_pct >= 0) ? std::max(0, std::min(100, battery_pct))
                          : clampBatteryPercentFromRange(battery_mv, battery_min_mv, battery_max_mv);
-  const WebSensorSnapshot sensor_snapshot = collectWebSensorSnapshot(board, sensors, battery_mv);
+  WebSensorSnapshot sensor_snapshot;
+  if (_web_sensor_snapshot_valid) {
+    sensor_snapshot = _web_sensor_snapshot;
+    sensor_snapshot.has_battery = true;
+    sensor_snapshot.battery_mv = battery_mv;
+  } else {
+    sensor_snapshot.has_battery = true;
+    sensor_snapshot.battery_mv = battery_mv;
+  }
   const bool archive_available = (_archive != nullptr) && _archive->isMounted();
 #ifdef WITH_MQTT_UPLINK
   const bool mqtt_connected = mqtt.isAnyBrokerConnected();

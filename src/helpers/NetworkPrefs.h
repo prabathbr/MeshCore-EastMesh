@@ -20,6 +20,7 @@ public:
                    const char* legacy_wifi_ssid = nullptr,
                    const char* legacy_wifi_pwd = nullptr);
   static bool save(FILESYSTEM* fs, const NetworkPrefs& prefs);
+  static constexpr uint32_t magicValue() { return kMagic; }
 
 private:
   static constexpr uint32_t kMagic = 0x4E455450;

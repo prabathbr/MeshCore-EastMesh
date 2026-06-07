@@ -327,8 +327,20 @@ void NetworkService::ensureWifi(bool network_required) {
       WiFi.disconnect(false, false);
       _last_wifi_attempt = 0;
     }
-    if (_last_wifi_attempt != 0 && status == WL_IDLE_STATUS && now_ms - _last_wifi_attempt < kWifiConnectTimeoutMillis) {
+    if (_last_wifi_attempt != 0 && now_ms - _last_wifi_attempt < kWifiConnectTimeoutMillis) {
       return;
+    }
+    if (_last_wifi_attempt != 0) {
+      Serial.printf("[BOOT] wifi timeout t=%lu code=%d retry\n",
+                    static_cast<unsigned long>(millis()),
+                    static_cast<int>(status));
+      WiFi.disconnect(false, false);
+      WiFi.mode(WIFI_OFF);
+      delay(100);
+      _wifi_started = false;
+      _sntp_started = false;
+      _have_time_sync = false;
+      _last_wifi_status = -1;
     }
     if (now_ms - _last_wifi_attempt < kWifiRetryMillis) {
       return;

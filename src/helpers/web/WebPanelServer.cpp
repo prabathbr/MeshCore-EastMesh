@@ -2497,8 +2497,29 @@ const char kWebPanelAppHtml[] PROGMEM = R"HTML(
       const sensors = summaryPayload && summaryPayload.sensors ? summaryPayload.sensors : null;
       const gpsEnabled = !!(sensors && sensors.gps_enabled === true);
       const order = ["battery", "memory", "signal", "noise_floor", "packets"];
+      if (sensors && Number.isFinite(sensors.supply_voltage_v)) {
+        order.push("voltage");
+      }
+      if (sensors && Number.isFinite(sensors.sensor_temp_c)) {
+        order.push("sensor_temp");
+      }
+      if (sensors && Number.isFinite(sensors.humidity_pct)) {
+        order.push("humidity");
+      }
+      if (sensors && Number.isFinite(sensors.pressure_hpa)) {
+        order.push("pressure");
+      }
+      if (sensors && Number.isFinite(sensors.pressure_altitude_m)) {
+        order.push("pressure_altitude");
+      }
+      if (sensors && Number.isFinite(sensors.mcu_temp_c)) {
+        order.push("mcu_temp");
+      }
       if (gpsEnabled) {
         order.push("gps_satellites");
+      }
+      if (sensors && Number.isFinite(sensors.gps_altitude_m)) {
+        order.push("gps_altitude");
       }
       return order;
     }
@@ -2706,10 +2727,19 @@ const char kWebPanelAppHtml[] PROGMEM = R"HTML(
         return false;
       }
       try {
-        await fetchJson("/api/session");
+        const res = await fetch("/api/session", { headers:{ "X-Auth-Token": token } });
+        if (res.status === 401) {
+          redirectToLogin();
+          return false;
+        }
+        if (!res.ok) {
+          statusEl.textContent = "Web panel reconnecting...";
+          return null;
+        }
         return true;
-      } catch (_) {
-        return false;
+      } catch (err) {
+        statusEl.textContent = "Web panel reconnecting...";
+        return null;
       }
     }
 	    function getLetsmeshMode() {
@@ -3171,10 +3201,14 @@ const char kWebPanelAppHtml[] PROGMEM = R"HTML(
       }
       mqttIataLoaded = false;
       refreshMqttIataWarning();
-      if (!await validateSession()) {
+      const sessionOk = await validateSession();
+      if (sessionOk === false) {
         return;
       }
       showAuthedUi(true);
+      if (sessionOk === null) {
+        return;
+      }
       if (isStatsPage) {
         try {
           await loadStatsPage(generation);

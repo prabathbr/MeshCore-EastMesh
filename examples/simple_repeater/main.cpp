@@ -35,7 +35,9 @@ void setup() {
 
   board.begin();
 
+#if defined(TBEAM_SUPREME_SX1262)
   sensors.begin();
+#endif
 
   archive.begin();
 
@@ -92,6 +94,10 @@ void setup() {
   mesh::Utils::printHex(Serial, the_mesh.self_id.pub_key, PUB_KEY_SIZE); Serial.println();
 
   command[0] = 0;
+
+#if !defined(TBEAM_SUPREME_SX1262)
+  sensors.begin();
+#endif
 
   the_mesh.begin(fs, &archive);
 
