@@ -3,6 +3,11 @@
 #include <helpers/IdentityStore.h>
 #include <stdint.h>
 
+// IMPORTANT: persisted to NVS and LittleFS as a raw byte blob. To keep saved
+// WiFi credentials across firmware updates, ONLY ever APPEND new fields to the
+// end of this struct, and never reorder, resize, or remove existing fields or
+// change `magic`. The loaders copy the overlapping prefix, so appended fields
+// load as zero on older saves and are then filled in by the *Defaults helpers.
 struct NetworkPrefs {
   uint32_t magic;
   uint8_t wifi_powersave;

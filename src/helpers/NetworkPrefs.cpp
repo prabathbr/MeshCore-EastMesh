@@ -56,15 +56,39 @@ bool loadLegacyWebWifiPrefs(FILESYSTEM* fs, NetworkPrefs& prefs) {
 }
 
 #if defined(ESP_PLATFORM)
+// Upper bound on the stored blob we are willing to read. NetworkPrefs only ever
+// grows by APPENDING fields (see NetworkPrefs.h), so this just needs headroom
+// above the current struct size to guard against corruption.
+static constexpr size_t kNetworkPrefsMaxBlob = 1024;
+
 bool loadNvsNetworkPrefs(NetworkPrefs& prefs) {
+  static_assert(sizeof(NetworkPrefs) <= kNetworkPrefsMaxBlob,
+                "NetworkPrefs grew past kNetworkPrefsMaxBlob");
   Preferences nvs;
   if (!nvs.begin("eastmesh-net", true)) {
     return false;
   }
-  NetworkPrefs stored{};
-  const size_t read = nvs.getBytes("prefs", &stored, sizeof(stored));
+  // Tolerate the struct having grown or shrunk between firmware versions instead
+  // of rejecting on an exact size match (which silently wiped WiFi creds across
+  // any layout change). Read whatever blob is stored, then copy the overlapping
+  // prefix into a zero-initialised struct: appended fields stay zero (and get
+  // defaulted by the caller), trailing bytes from a newer layout are ignored.
+  const size_t blob_len = nvs.getBytesLength("prefs");
+  if (blob_len < sizeof(prefs.magic) || blob_len > kNetworkPrefsMaxBlob) {
+    nvs.end();
+    return false;
+  }
+  uint8_t buf[kNetworkPrefsMaxBlob];
+  memset(buf, 0, sizeof(buf));
+  const size_t read = nvs.getBytes("prefs", buf, blob_len);
   nvs.end();
-  if (read != sizeof(stored) || stored.magic != NetworkPrefsStore::magicValue()) {
+  if (read != blob_len) {
+    return false;
+  }
+  NetworkPrefs stored{};
+  const size_t copy_len = blob_len < sizeof(stored) ? blob_len : sizeof(stored);
+  memcpy(&stored, buf, copy_len);
+  if (stored.magic != NetworkPrefsStore::magicValue()) {
     return false;
   }
   prefs = stored;
