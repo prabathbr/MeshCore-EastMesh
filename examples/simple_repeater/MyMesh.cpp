@@ -2335,6 +2335,12 @@ void MyMesh::handleCommand(uint32_t sender_timestamp, char *command, char *reply
     sprintf(reply, "> %s", network.getWifiSSID()[0] ? network.getWifiSSID() : "-");
   } else if (strcmp(command, "get wifi.powersaving") == 0) {
     sprintf(reply, "> %s", network.getWifiPowerSave());
+  } else if (strcmp(command, "get ntp.server1") == 0) {
+    sprintf(reply, "> %s", network.getNtpServer(1));
+  } else if (strcmp(command, "get ntp.server2") == 0) {
+    sprintf(reply, "> %s", network.getNtpServer(2));
+  } else if (strcmp(command, "get ntp.server3") == 0) {
+    sprintf(reply, "> %s", network.getNtpServer(3));
 #endif
 #if defined(ESP_PLATFORM) && WITH_WEB_PANEL
   } else if (memcmp(command, "set web ", 8) == 0) {
@@ -2378,6 +2384,24 @@ void MyMesh::handleCommand(uint32_t sender_timestamp, char *command, char *reply
     } else {
       strcpy(reply, "Err - use none|min|max");
     }
+  } else if (memcmp(command, "set ntp.server1 ", 16) == 0) {
+    if (network.setNtpServer(1, &command[16])) {
+      strcpy(reply, "OK");
+    } else {
+      strcpy(reply, "Err - bad ntp.server1");
+    }
+  } else if (memcmp(command, "set ntp.server2 ", 16) == 0) {
+    if (network.setNtpServer(2, &command[16])) {
+      strcpy(reply, "OK");
+    } else {
+      strcpy(reply, "Err - bad ntp.server2");
+    }
+  } else if (memcmp(command, "set ntp.server3 ", 16) == 0) {
+    if (network.setNtpServer(3, &command[16])) {
+      strcpy(reply, "OK");
+    } else {
+      strcpy(reply, "Err - bad ntp.server3");
+    }
 #endif
 #ifdef WITH_MQTT_UPLINK
   } else if (memcmp(command, "mqtt.owner ", 11) == 0) {
@@ -2420,6 +2444,8 @@ void MyMesh::handleCommand(uint32_t sender_timestamp, char *command, char *reply
     sprintf(reply, "> %s", mqtt.isTxEnabled() ? "on" : "off");
   } else if (strcmp(command, "get mqtt.eastmesh-au") == 0 || strcmp(command, "get mqtt.eastmesh.au") == 0) {
     sprintf(reply, "> %s", mqtt.isEndpointEnabled(0x01) ? "on" : "off");
+  } else if (strcmp(command, "get mqtt.meshmapper") == 0) {
+    sprintf(reply, "> %s", mqtt.isEndpointEnabled(0x10) ? "on" : "off");
   } else if (strcmp(command, "get mqtt.letsmesh-eu") == 0 || strcmp(command, "get mqtt.letsmesh.eu") == 0) {
     sprintf(reply, "> %s", mqtt.isEndpointEnabled(0x02) ? "on" : "off");
   } else if (strcmp(command, "get mqtt.letsmesh-us") == 0 || strcmp(command, "get mqtt.letsmesh.us") == 0) {
@@ -2468,6 +2494,12 @@ void MyMesh::handleCommand(uint32_t sender_timestamp, char *command, char *reply
     strcpy(reply, "OK");
   } else if (memcmp(command, "set mqtt.eastmesh-au ", 21) == 0 || memcmp(command, "set mqtt.eastmesh.au ", 21) == 0) {
     if (mqtt.setEndpointEnabled(0x01, memcmp(&command[21], "on", 2) == 0)) {
+      strcpy(reply, "OK");
+    } else {
+      strcpy(reply, "Err - max 2 mqtt brokers");
+    }
+  } else if (memcmp(command, "set mqtt.meshmapper ", 20) == 0) {
+    if (mqtt.setEndpointEnabled(0x10, memcmp(&command[20], "on", 2) == 0)) {
       strcpy(reply, "OK");
     } else {
       strcpy(reply, "Err - max 2 mqtt brokers");
