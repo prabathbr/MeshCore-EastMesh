@@ -49,7 +49,7 @@ const char *MQTTBridge::kBridgeTopic = "meshcore/bridge/packets";
 
 MQTTBridge::MQTTBridge(NodePrefs *prefs, mesh::PacketManager *mgr, mesh::RTCClock *rtc)
     : BridgeBase(prefs, mgr, rtc), _client(nullptr), _connected(false), _started(false),
-      _next_connect_attempt(0), _reconnect_failures(0) {
+      _pending_destroy(false), _next_connect_attempt(0), _reconnect_failures(0) {
   _instance = this;
   _client_id[0] = 0;
 }
@@ -72,6 +72,13 @@ void MQTTBridge::destroyClient() {
   }
   _connected = false;
   _started = false;
+  _pending_destroy = false;
+}
+
+void MQTTBridge::scheduleClientDestroy() {
+  _connected = false;
+  _started = false;
+  _pending_destroy = true;
 }
 
 void MQTTBridge::begin() {
@@ -108,9 +115,7 @@ void MQTTBridge::onMqttConnected() {
 }
 
 void MQTTBridge::onMqttDisconnected() {
-  _connected = false;
-  _started = false;
-  destroyClient();
+  scheduleClientDestroy();
   _next_connect_attempt = millis() + connectRetryDelayMillis(_reconnect_failures);
   if (_reconnect_failures < 255) {
     ++_reconnect_failures;
@@ -128,6 +133,9 @@ void MQTTBridge::mqttEventHandler(void *handler_args, esp_event_base_t, int32_t 
       bridge->onMqttConnected();
       break;
     case MQTT_EVENT_DISCONNECTED:
+      bridge->onMqttDisconnected();
+      break;
+    case MQTT_EVENT_ERROR:
       bridge->onMqttDisconnected();
       break;
     case MQTT_EVENT_DATA: {
@@ -160,6 +168,12 @@ bool MQTTBridge::ensureClient() {
   cfg.broker.address.port = peerPort(_prefs);
   cfg.broker.address.transport = MQTT_TRANSPORT_OVER_TCP;
   cfg.credentials.client_id = _client_id;
+  if (_prefs->bridge_peer_username[0] != 0) {
+    cfg.credentials.username = _prefs->bridge_peer_username;
+  }
+  if (_prefs->bridge_peer_password[0] != 0) {
+    cfg.credentials.authentication.password = _prefs->bridge_peer_password;
+  }
   cfg.session.keepalive = 30;
   cfg.network.reconnect_timeout_ms = 10000;
   cfg.network.timeout_ms = 10000;
@@ -171,6 +185,12 @@ bool MQTTBridge::ensureClient() {
   cfg.port = peerPort(_prefs);
   cfg.transport = MQTT_TRANSPORT_OVER_TCP;
   cfg.client_id = _client_id;
+  if (_prefs->bridge_peer_username[0] != 0) {
+    cfg.username = _prefs->bridge_peer_username;
+  }
+  if (_prefs->bridge_peer_password[0] != 0) {
+    cfg.password = _prefs->bridge_peer_password;
+  }
   cfg.keepalive = 30;
   cfg.buffer_size = MAX_MQTT_PACKET_SIZE;
   cfg.out_buffer_size = MAX_MQTT_PACKET_SIZE;
@@ -201,6 +221,11 @@ void MQTTBridge::loop() {
     return;
   }
 
+  if (_pending_destroy) {
+    destroyClient();
+    return;
+  }
+
   if (WiFi.status() != WL_CONNECTED) {
     if (_client != nullptr) {
       destroyClient();
@@ -208,12 +233,14 @@ void MQTTBridge::loop() {
     return;
   }
 
-  if (_client == nullptr) {
-    if (_next_connect_attempt != 0 && millis() < _next_connect_attempt) {
-      return;
-    }
-    ensureClient();
+  if (_client != nullptr) {
+    return;
   }
+
+  if (_next_connect_attempt != 0 && millis() < _next_connect_attempt) {
+    return;
+  }
+  ensureClient();
 }
 
 void MQTTBridge::handleMqttData(const uint8_t *data, size_t len) {

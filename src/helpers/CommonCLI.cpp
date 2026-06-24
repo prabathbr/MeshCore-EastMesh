@@ -109,7 +109,13 @@ void CommonCLI::loadPrefsInt(FILESYSTEM* fs, const char* filename) {
     if (file.available() >= (int)sizeof(_prefs->bridge_peer_port)) {
       file.read((uint8_t *)&_prefs->bridge_peer_port, sizeof(_prefs->bridge_peer_port));          // 360
     }
-    // next: 362
+    if (file.available() >= (int)sizeof(_prefs->bridge_peer_username)) {
+      file.read((uint8_t *)&_prefs->bridge_peer_username, sizeof(_prefs->bridge_peer_username));  // 362
+    }
+    if (file.available() >= (int)sizeof(_prefs->bridge_peer_password)) {
+      file.read((uint8_t *)&_prefs->bridge_peer_password, sizeof(_prefs->bridge_peer_password));  // 427
+    }
+    // next: 523
 
     // sanitise bad pref values
     _prefs->rx_delay_base = constrain(_prefs->rx_delay_base, 0, 20.0f);
@@ -211,7 +217,9 @@ void CommonCLI::savePrefs(FILESYSTEM* fs) {
     file.write((uint8_t *)&_prefs->flood_max_advert, sizeof(_prefs->flood_max_advert));            // 295
     file.write((uint8_t *)&_prefs->bridge_peer_host, sizeof(_prefs->bridge_peer_host));            // 296
     file.write((uint8_t *)&_prefs->bridge_peer_port, sizeof(_prefs->bridge_peer_port));            // 360
-    // next: 362
+    file.write((uint8_t *)&_prefs->bridge_peer_username, sizeof(_prefs->bridge_peer_username));    // 362
+    file.write((uint8_t *)&_prefs->bridge_peer_password, sizeof(_prefs->bridge_peer_password));    // 427
+    // next: 523
 
     file.close();
   }
@@ -812,6 +820,16 @@ void CommonCLI::handleSetCmd(uint32_t sender_timestamp, char* command, char* rep
     _callbacks->restartBridge();
     savePrefs();
     strcpy(reply, "OK");
+  } else if (memcmp(config, "bridge.peer.username ", 21) == 0) {
+    StrHelper::strncpy(_prefs->bridge_peer_username, &config[21], sizeof(_prefs->bridge_peer_username));
+    _callbacks->restartBridge();
+    savePrefs();
+    strcpy(reply, "OK");
+  } else if (memcmp(config, "bridge.peer.password ", 21) == 0) {
+    StrHelper::strncpy(_prefs->bridge_peer_password, &config[21], sizeof(_prefs->bridge_peer_password));
+    _callbacks->restartBridge();
+    savePrefs();
+    strcpy(reply, "OK");
   } else if (memcmp(config, "bridge.secret ", 14) == 0) {
     StrHelper::strncpy(_prefs->bridge_secret, &config[14], sizeof(_prefs->bridge_secret));
     _callbacks->restartBridge();
@@ -960,6 +978,10 @@ void CommonCLI::handleGetCmd(uint32_t sender_timestamp, char* command, char* rep
     sprintf(reply, "> %s", _prefs->bridge_peer_host);
   } else if (memcmp(config, "bridge.peer.port", 16) == 0) {
     sprintf(reply, "> %u", _prefs->bridge_peer_port != 0 ? _prefs->bridge_peer_port : 1883);
+  } else if (memcmp(config, "bridge.peer.username", 20) == 0) {
+    sprintf(reply, "> %s", _prefs->bridge_peer_username[0] ? _prefs->bridge_peer_username : "-");
+  } else if (memcmp(config, "bridge.peer.password", 20) == 0) {
+    sprintf(reply, "> %s", _prefs->bridge_peer_password[0] ? "set" : "-");
   } else if (memcmp(config, "bridge.secret", 13) == 0) {
     sprintf(reply, "> %s", _prefs->bridge_secret);
 #endif

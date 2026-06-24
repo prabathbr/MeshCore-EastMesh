@@ -1033,7 +1033,24 @@ const char kWebPanelAppHtml[] PROGMEM = R"HTML(
 	            <button id="refreshBridgePeerEndpointBtn" class="iconbtn" title="Refresh bridge peer MQTT host and port">&#8635;</button>
 	            <button id="saveBridgePeerEndpointBtn" class="savebtn">Save</button>
 	          </div>
-	          <div class="panel-note">Both bridge nodes must use the same peer broker, port, and bridge secret.</div>
+	          <div class="panel-note">Both bridge nodes must use the same peer broker, port, credentials, and bridge secret.</div>
+	          <div class="row">
+	            <div class="field-card">
+	              <label class="label" for="bridgePeerUsername">Username</label>
+	              <div class="inline-actions">
+	                <input id="bridgePeerUsername" placeholder="optional" maxlength="64">
+	                <button class="iconbtn" data-load-cmd="get bridge.peer.username" data-load-input="bridgePeerUsername" title="Refresh bridge peer MQTT username">&#8635;</button>
+	                <button class="savebtn" data-prefix="set bridge.peer.username " data-input="bridgePeerUsername">Save</button>
+	              </div>
+	            </div>
+	            <div class="field-card">
+	              <label class="label" for="bridgePeerPassword">Password</label>
+	              <div class="inline-actions two-actions">
+	                <input id="bridgePeerPassword" type="password" placeholder="optional" maxlength="95">
+	                <button class="savebtn" data-prefix="set bridge.peer.password " data-input="bridgePeerPassword">Save</button>
+	              </div>
+	            </div>
+	          </div>
 	        </div>
 	      </div>
 	    </section>
@@ -1230,6 +1247,7 @@ const char kWebPanelAppHtml[] PROGMEM = R"HTML(
     function parseClientEnv(clientEnv) {
       const env = String(clientEnv || "").trim();
       const suffixes = [
+        { suffix:"_repeater_observer_mqtt_bridge", firmware:"repeater_observer_mqtt_bridge" },
         { suffix:"_repeater_observer_espnow", firmware:"repeater_observer_espnow" },
         { suffix:"_repeater_observer", firmware:"repeater_observer" },
         { suffix:"_repeater_bridge_espnow", firmware:"repeater_bridge_espnow" },
@@ -2860,6 +2878,7 @@ const char kWebPanelAppHtml[] PROGMEM = R"HTML(
       const input = document.getElementById("bridgePeerEndpoint");
       if (!input) return;
       input.value = host ? `${host}:${port}` : "";
+      await loadField("get bridge.peer.username", "bridgePeerUsername", null, options);
     }
     async function saveBridgePeerEndpoint() {
       const input = document.getElementById("bridgePeerEndpoint");

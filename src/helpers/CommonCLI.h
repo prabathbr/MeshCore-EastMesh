@@ -67,6 +67,8 @@ struct NodePrefs { // persisted to file
   uint16_t fan_timeout_secs;
   char bridge_peer_host[64]; // peer MQTT broker host (MQTT bridge only)
   uint16_t bridge_peer_port;   // peer MQTT broker port (MQTT bridge only, default 1883)
+  char bridge_peer_username[65]; // peer MQTT broker username (MQTT bridge only)
+  char bridge_peer_password[96]; // peer MQTT broker password (MQTT bridge only)
 };
 
 class CommonCLICallbacks {

@@ -158,7 +158,7 @@ OK
 
 ### MQTT Bridge Settings For Observer MQTT Bridge Builds
 
-These commands are available on observer builds that compile with the MQTT mesh bridge transport (for example `Xiao_S3_WIO_repeater_observer_espnow` when built with `WITH_MQTT_BRIDGE`).
+These commands are available on `*_repeater_observer_mqtt_bridge` firmware targets (release track `observer-eastmesh-bridge-mqtt`).
 
 The MQTT bridge forwards raw mesh packets over a shared topic at a peer MQTT broker. It is separate from MQTT uplink publishing to EastMesh or MeshMapper brokers.
 
@@ -167,9 +167,13 @@ The MQTT bridge forwards raw mesh packets over a shared topic at a peer MQTT bro
 - `set bridge.peer.host <host>`: sets the peer MQTT broker host and restarts the bridge.
 - `get bridge.peer.port`: shows the configured peer MQTT broker port (defaults to `1883` when unset).
 - `set bridge.peer.port <port>`: sets the peer MQTT broker port and restarts the bridge.
+- `get bridge.peer.username` / `set bridge.peer.username <username>`: optional peer MQTT broker username.
+- `get bridge.peer.password` / `set bridge.peer.password <password>`: optional peer MQTT broker password (`get` returns `set` or `-`, not the stored value).
 - `get bridge.secret` / `set bridge.secret <secret>`: shared XOR key used by all bridge nodes on the same bridge network.
 
-Both bridge nodes must use the same peer broker address, port, and `bridge.secret`. Mesh packets are published and subscribed on topic `meshcore/bridge/packets`.
+Both bridge nodes must use the same peer broker address, port, credentials, and `bridge.secret`.
+
+On `*_repeater_observer_mqtt_bridge` builds, MQTT uplink brokers are **disabled by default** so the mesh bridge client is not competing with EastMesh/MeshMapper WSS uplink at boot. Enable uplink brokers manually in MQTT Settings when needed.
 
 Example:
 
@@ -177,6 +181,10 @@ Example:
 > set bridge.peer.host 192.168.1.10
 OK
 > set bridge.peer.port 1883
+OK
+> set bridge.peer.username meshbridge
+OK
+> set bridge.peer.password your-mqtt-password
 OK
 > set bridge.secret my-shared-secret
 OK

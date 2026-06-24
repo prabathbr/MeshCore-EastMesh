@@ -28,12 +28,14 @@ private:
   esp_mqtt_client_handle_t _client;
   bool _connected;
   bool _started;
+  bool _pending_destroy;
   unsigned long _next_connect_attempt;
   uint8_t _reconnect_failures;
   char _client_id[24];
 
   void xorCrypt(uint8_t *data, size_t len);
   void destroyClient();
+  void scheduleClientDestroy();
   bool ensureClient();
   void handleMqttData(const uint8_t *data, size_t len);
   void onMqttConnected();
